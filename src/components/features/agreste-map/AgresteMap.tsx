@@ -187,7 +187,7 @@ const AgresteMap: React.FC = () => {
               <div className="space-y-4 sm:space-y-6">
                 <div className="bg-[#3A6ABE]/10 p-4 sm:p-6 rounded-xl">
                   <h3 className="text-lg sm:text-xl font-semibold text-[#3A6ABE] mb-2 sm:mb-3">
-                    Demographics
+                   População e Território
                   </h3>
                   <p className="text-sm sm:text-base text-[#3A6ABE]/90">Population: 250,000</p>
                   <p className="text-sm sm:text-base text-[#3A6ABE]/90">Area: 1,200 km²</p>
@@ -195,7 +195,7 @@ const AgresteMap: React.FC = () => {
                 
                 <div className="bg-[#F79B4B]/10 p-4 sm:p-6 rounded-xl">
                   <h3 className="text-lg sm:text-xl font-semibold text-[#F79B4B] mb-2 sm:mb-3">
-                    Economy
+                    Economia
                   </h3>
                   <p className="text-sm sm:text-base text-[#3A6ABE]/90">
                     Main industries: Agriculture, Technology
@@ -205,7 +205,7 @@ const AgresteMap: React.FC = () => {
               
               <div>
                 <h3 className="text-xl sm:text-2xl font-bold text-[#3A6ABE] mb-3 sm:mb-4">
-                  About
+                  História da cidade
                 </h3>
                 <p className="text-sm sm:text-base text-[#3A6ABE]/90 leading-relaxed">
                   {selectedCity.name} is a vibrant city known for its rich culture and beautiful landscapes. 
@@ -214,7 +214,7 @@ const AgresteMap: React.FC = () => {
                 </p>
                 <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-[#3A6ABE]/20">
                   <h4 className="text-base sm:text-lg font-semibold text-[#F79B4B] mb-2">
-                    Highlights
+                    Destaques da Cidade
                   </h4>
                   <ul className="text-sm sm:text-base text-[#3A6ABE]/90 space-y-1 sm:space-y-2">
                     <li>• Annual Cultural Festival</li>
