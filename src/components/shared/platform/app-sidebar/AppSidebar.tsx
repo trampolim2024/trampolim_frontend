@@ -1,6 +1,8 @@
-import { FiX } from 'react-icons/fi';
+import { useState } from 'react';
+import { FiX, FiUser } from 'react-icons/fi'; // Adicionei FiUser para o ícone do perfil
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
+import { LogoutModal } from '../logout-modal/LogoutModal';
 
 interface MenuItem {
   id: string;
@@ -23,12 +25,30 @@ export const AppSidebar = ({
   setActiveSection,
   menuItems
 }: AppSidebarProps) => {
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+
+  // Garantir que o item de perfil esteja presente nos menuItems
+  const completeMenuItems = [
+    {
+      id: 'perfil',
+      label: 'Meu Perfil',
+      icon: <FiUser className="w-5 h-5" />
+    },
+    ...menuItems.filter(item => item.id !== 'perfil') // Remove duplicatas se existirem
+  ];
+
+  const handleLogout = () => {
+    console.log('Logout realizado');
+    setShowLogoutModal(false);
+    // Adicione sua lógica de logout aqui
+  };
+
   return (
     <>
       {/* Desktop Sidebar */}
       <aside className="hidden md:block w-56 pr-6">
         <nav className="space-y-2">
-          {menuItems.map((item) => (
+          {completeMenuItems.map((item) => (
             <Button
               key={item.id}
               variant={activeSection === item.id ? 'default' : 'ghost'}
@@ -37,7 +57,13 @@ export const AppSidebar = ({
                   ? 'bg-[#3A6ABE] text-white hover:bg-[#3A6ABE]/90' 
                   : 'text-[#3A6ABE] hover:bg-[#3A6ABE]/10 hover:text-[#3A6ABE]'
               }`}
-              onClick={() => setActiveSection(item.id)}
+              onClick={() => {
+                if (item.id === 'sair') {
+                  setShowLogoutModal(true);
+                } else {
+                  setActiveSection(item.id);
+                }
+              }}
             >
               <span className="mr-3">{item.icon}</span>
               {item.label}
@@ -77,7 +103,7 @@ export const AppSidebar = ({
                 </Button>
               </div>
               <nav className="p-2 space-y-2">
-                {menuItems.map((item) => (
+                {completeMenuItems.map((item) => (
                   <Button
                     key={item.id}
                     variant={activeSection === item.id ? 'default' : 'ghost'}
@@ -87,7 +113,11 @@ export const AppSidebar = ({
                         : 'text-[#3A6ABE] hover:bg-[#3A6ABE]/10 hover:text-[#3A6ABE]'
                     }`}
                     onClick={() => {
-                      setActiveSection(item.id);
+                      if (item.id === 'sair') {
+                        setShowLogoutModal(true);
+                      } else {
+                        setActiveSection(item.id);
+                      }
                       setIsMenuOpen(false);
                     }}
                   >
@@ -100,6 +130,13 @@ export const AppSidebar = ({
           </>
         )}
       </AnimatePresence>
+
+      {/* Modal de Logout */}
+      <LogoutModal
+        isOpen={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        onConfirm={handleLogout}
+      />
     </>
   );
 };
