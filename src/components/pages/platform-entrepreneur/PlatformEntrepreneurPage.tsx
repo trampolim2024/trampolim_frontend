@@ -2,6 +2,7 @@ import { AppHeader } from '@/components/shared/platform/app-header/AppHeader';
 import { AppSidebar } from '@/components/shared/platform/app-sidebar/AppSidebar';
 import { CourseCardProgress } from '@/components/shared/platform/course-card-progress/CourseCardProgress';
 import { CourseCardRecommended } from '@/components/shared/platform/course-card-recommended/CourseCardRecommended';
+import { ProfileSection } from '@/components/shared/platform/profile-section/ProfileSection';
 import { SectionPlaceholder } from '@/components/shared/platform/selection-placeholder/SelectionPlaceholder';
 import { useState } from 'react';
 import { FiUser, FiBook, FiFileText, FiZap, FiBookmark } from 'react-icons/fi';
@@ -10,10 +11,31 @@ const PlatformEntrepreneur = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('cursos');
   
-  // Mock data
+  // Mock data completo para o perfil
   const user = {
     name: 'João Silva',
     avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
+    // Dados para o perfil
+    nomeCompleto: "João Silva",
+    email: "joao.silva@empresa.com",
+    cpf: "123.456.789-00",
+    telefone: "(11) 98765-4321",
+    genero: "Masculino",
+    grauEscolaridade: "Superior Completo",
+    areaAtuacao: "Tecnologia",
+    linkedin: "linkedin.com/in/joao-silva",
+    fotoPerfil: "https://randomuser.me/api/portraits/men/32.jpg",
+    cep: "01311-000",
+    estado: "SP",
+    cidade: "São Paulo",
+    bairro: "Bela Vista",
+    endereco: "Av. Paulista, 1000",
+    nomeEmpresa: "TechStart Ltda",
+    siteEmpresa: "techstart.com.br",
+    descricaoNegocio: "Desenvolvimento de aplicativos inovadores para pequenas empresas",
+    miniCurriculo: "Empreendedor há 5 anos no mercado de tecnologia, com experiência em desenvolvimento de software e gestão de equipes.",
+    role: "Empreendedor",
+    // Dados para cursos
     coursesInProgress: [
       {
         id: 1,
@@ -85,7 +107,7 @@ const PlatformEntrepreneur = () => {
   return (
     <div className="min-h-screen bg-[#F5F5F5]">
       <AppHeader 
-        user={user} 
+        user={{ name: user.name, avatar: user.avatar }} 
         isMenuOpen={isMenuOpen} 
         setIsMenuOpen={setIsMenuOpen} 
       />
@@ -99,7 +121,7 @@ const PlatformEntrepreneur = () => {
           menuItems={menuItems}
         />
 
-        <main className="flex-1">
+        <main className="flex-1 ml-0 lg:ml-6">
           {activeSection === 'cursos' && (
             <div>
               <div className="mb-8">
@@ -126,7 +148,31 @@ const PlatformEntrepreneur = () => {
             </div>
           )}
 
-          {activeSection !== 'cursos' && (
+          {activeSection === 'perfil' && (
+            <ProfileSection user={{
+              nomeCompleto: user.nomeCompleto,
+              email: user.email,
+              cpf: user.cpf,
+              telefone: user.telefone,
+              genero: user.genero,
+              grauEscolaridade: user.grauEscolaridade,
+              areaAtuacao: user.areaAtuacao,
+              linkedin: user.linkedin,
+              fotoPerfil: user.fotoPerfil,
+              cep: user.cep,
+              estado: user.estado,
+              cidade: user.cidade,
+              bairro: user.bairro,
+              endereco: user.endereco,
+              nomeEmpresa: user.nomeEmpresa,
+              siteEmpresa: user.siteEmpresa,
+              descricaoNegocio: user.descricaoNegocio,
+              miniCurriculo: user.miniCurriculo,
+              role: user.role
+            }} />
+          )}
+
+          {!['cursos', 'perfil'].includes(activeSection) && (
             <SectionPlaceholder
               icon={menuItems.find(item => item.id === activeSection)?.icon}
               title={menuItems.find(item => item.id === activeSection)?.label || ''}

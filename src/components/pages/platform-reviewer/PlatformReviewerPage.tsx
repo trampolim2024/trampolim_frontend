@@ -2,11 +2,11 @@ import { AppHeader } from '@/components/shared/platform/app-header/AppHeader';
 import { AppSidebar } from '@/components/shared/platform/app-sidebar/AppSidebar';
 import { IdeaCardReviewer } from '@/components/shared/platform/idea-card-reviewer/IdeaCardReviewer';
 import { IdeasPagination } from '@/components/shared/platform/ideas-pagination/IdeasPagination';
+import { ProfileSection } from '@/components/shared/platform/profile-section/ProfileSection';
 import { SectionPlaceholder } from '@/components/shared/platform/selection-placeholder/SelectionPlaceholder';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { FiUser, FiFileText, FiZap, FiLogOut } from 'react-icons/fi';
-
 
 const PlatformReviewerPage = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -14,10 +14,32 @@ const PlatformReviewerPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
   
-  // Mock data
+  // Mock data completo para o perfil do avaliador
   const user = {
     name: 'Ana Revisora',
     avatar: 'https://randomuser.me/api/portraits/women/44.jpg',
+    // Dados para o perfil
+    nomeCompleto: "Ana Revisora",
+    email: "ana.revisora@trampolim.com",
+    cpf: "987.654.321-00",
+    telefone: "(21) 99876-5432",
+    genero: "Feminino",
+    grauEscolaridade: "Doutorado",
+    areaAtuacao: "Avaliação de Projetos",
+    linkedin: "linkedin.com/in/ana-revisora",
+    fotoPerfil: "https://randomuser.me/api/portraits/women/44.jpg",
+    cep: "22451-000",
+    estado: "RJ",
+    cidade: "Rio de Janeiro",
+    bairro: "Ipanema",
+    endereco: "Rua Visconde de Pirajá, 550",
+    nomeEmpresa: "Consultoria Inovação",
+    siteEmpresa: "consultoriainovacao.com.br",
+    descricaoNegocio: "Consultoria especializada em avaliação de projetos de inovação",
+    miniCurriculo: "Avaliadora de projetos há 10 anos, com experiência em programas de aceleração e incubação. Especialista em modelos de negócio inovadores.",
+    role: "Avaliadora Sênior",
+    areasEspecializacao: ["TI", "Marketing", "Finanças"],
+    descricaoIncubacao: "Experiência com mais de 50 startups avaliadas em programas de incubação"
   };
 
   const menuItems = [
@@ -57,7 +79,7 @@ const PlatformReviewerPage = () => {
   return (
     <div className="min-h-screen bg-[#F5F5F5]">
       <AppHeader 
-        user={user} 
+        user={{ name: user.name, avatar: user.avatar }} 
         isMenuOpen={isMenuOpen} 
         setIsMenuOpen={setIsMenuOpen} 
       />
@@ -71,7 +93,7 @@ const PlatformReviewerPage = () => {
           menuItems={menuItems}
         />
 
-        <main className="flex-1">
+        <main className="flex-1 ml-0 lg:ml-6">
           {activeSection === 'ideias' && (
             <div>
               <div className="mb-8">
@@ -93,7 +115,31 @@ const PlatformReviewerPage = () => {
             </div>
           )}
 
-          {activeSection !== 'ideias' && (
+          {activeSection === 'perfil' && (
+            <ProfileSection user={{
+              nomeCompleto: user.nomeCompleto,
+              email: user.email,
+              cpf: user.cpf,
+              telefone: user.telefone,
+              genero: user.genero,
+              grauEscolaridade: user.grauEscolaridade,
+              areaAtuacao: user.areaAtuacao,
+              linkedin: user.linkedin,
+              fotoPerfil: user.fotoPerfil,
+              cep: user.cep,
+              estado: user.estado,
+              cidade: user.cidade,
+              bairro: user.bairro,
+              endereco: user.endereco,
+              nomeEmpresa: user.nomeEmpresa,
+              siteEmpresa: user.siteEmpresa,
+              descricaoNegocio: user.descricaoNegocio,
+              miniCurriculo: user.miniCurriculo,
+              role: user.role
+            }} />
+          )}
+
+          {!['ideias', 'perfil'].includes(activeSection) && (
             <>
               <SectionPlaceholder
                 icon={menuItems.find(item => item.id === activeSection)?.icon}
