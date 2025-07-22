@@ -1,21 +1,21 @@
 import { AppHeader } from '@/components/shared/platform/app-header/AppHeader';
 import { AppSidebar } from '@/components/shared/platform/app-sidebar/AppSidebar';
+import BlogCommunity from '@/components/shared/platform/blog-section-community/BlogCommunity';
 import { CourseCardProgress } from '@/components/shared/platform/course-card-progress/CourseCardProgress';
 import { CourseCardRecommended } from '@/components/shared/platform/course-card-recommended/CourseCardRecommended';
 import { ProfileSection } from '@/components/shared/platform/profile-section/ProfileSection';
-import { SectionPlaceholder } from '@/components/shared/platform/selection-placeholder/SelectionPlaceholder';
 import { useState } from 'react';
-import { FiUser, FiBook, FiFileText, FiZap, FiBookmark } from 'react-icons/fi';
+import { FiUser, FiBook, FiFileText, FiZap, FiBookmark, FiLogOut } from 'react-icons/fi';
+import SubmitInnovationPage from '../submition-innovation/SubmitInnovationPage';
+import EditalPage from '../edital-page/EditalPage';
 
 const PlatformEntrepreneur = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('cursos');
-  
-  // Mock data completo para o perfil
+
   const user = {
     name: 'João Silva',
     avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
-    // Dados para o perfil
     nomeCompleto: "João Silva",
     email: "joao.silva@empresa.com",
     cpf: "123.456.789-00",
@@ -35,7 +35,6 @@ const PlatformEntrepreneur = () => {
     descricaoNegocio: "Desenvolvimento de aplicativos inovadores para pequenas empresas",
     miniCurriculo: "Empreendedor há 5 anos no mercado de tecnologia, com experiência em desenvolvimento de software e gestão de equipes.",
     role: "Empreendedor",
-    // Dados para cursos
     coursesInProgress: [
       {
         id: 1,
@@ -101,17 +100,19 @@ const PlatformEntrepreneur = () => {
     { id: 'cursos', label: 'Cursos', icon: <FiBook className="w-5 h-5" /> },
     { id: 'editais', label: 'Editais', icon: <FiFileText className="w-5 h-5" /> },
     { id: 'ideia', label: 'Minha Ideia', icon: <FiZap className="w-5 h-5" /> },
-    { id: 'blog', label: 'Blog', icon: <FiBookmark className="w-5 h-5" /> }
+    { id: 'blog', label: 'Blog', icon: <FiBookmark className="w-5 h-5" /> },
+    { id: 'sair', label: 'Sair', icon: <FiLogOut className="w-5 h-5" /> }
+
   ];
 
   return (
     <div className="min-h-screen bg-[#F5F5F5]">
-      <AppHeader 
-        user={{ name: user.name, avatar: user.avatar }} 
-        isMenuOpen={isMenuOpen} 
-        setIsMenuOpen={setIsMenuOpen} 
+      <AppHeader
+        user={{ name: user.name, avatar: user.avatar }}
+        isMenuOpen={isMenuOpen}
+        setIsMenuOpen={setIsMenuOpen}
       />
-      
+
       <div className="container mx-auto px-4 py-8 flex">
         <AppSidebar
           isMenuOpen={isMenuOpen}
@@ -128,7 +129,7 @@ const PlatformEntrepreneur = () => {
                 <h2 className="text-2xl font-bold text-[#3A6ABE] mb-4">Continue aprendendo</h2>
                 <p className="text-[#3A6ABE]/80">Continue de onde parou nos seus cursos</p>
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
                 {user.coursesInProgress.map((course) => (
                   <CourseCardProgress key={course.id} course={course} />
@@ -139,7 +140,7 @@ const PlatformEntrepreneur = () => {
                 <h2 className="text-2xl font-bold text-[#3A6ABE] mb-4">Cursos recomendados</h2>
                 <p className="text-[#3A6ABE]/80">Baseado no seu perfil e interesses</p>
               </div>
-              
+
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {user.recommendedCourses.map((course) => (
                   <CourseCardRecommended key={course.id} course={course} />
@@ -147,6 +148,7 @@ const PlatformEntrepreneur = () => {
               </div>
             </div>
           )}
+
 
           {activeSection === 'perfil' && (
             <ProfileSection user={{
@@ -172,12 +174,18 @@ const PlatformEntrepreneur = () => {
             }} />
           )}
 
-          {!['cursos', 'perfil'].includes(activeSection) && (
-            <SectionPlaceholder
-              icon={menuItems.find(item => item.id === activeSection)?.icon}
-              title={menuItems.find(item => item.id === activeSection)?.label || ''}
-            />
+          {activeSection === 'ideia' && (
+            <SubmitInnovationPage />
           )}
+
+            {activeSection === 'editais' && (
+            <EditalPage />
+          )}
+
+          {activeSection === 'blog' && (
+            <BlogCommunity />
+          )}
+
         </main>
       </div>
     </div>
