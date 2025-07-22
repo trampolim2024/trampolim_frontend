@@ -1,6 +1,6 @@
 import { AppHeader } from '@/components/shared/platform/app-header/AppHeader';
 import { AppSidebar } from '@/components/shared/platform/app-sidebar/AppSidebar';
-import { BlogSection } from '@/components/shared/platform/blog-section/BlogSection';
+import {  BlogSectionADM } from '@/components/shared/platform/blog-section/BlogSection[ADM]';
 import { EditaisSection } from '@/components/shared/platform/edital-section/EditalSection';
 import { IdeasSection } from '@/components/shared/platform/ideas-section/IdeasSection';
 import { ProfileSection } from '@/components/shared/platform/profile-section/ProfileSection';
@@ -119,7 +119,7 @@ const PlatformAdminPage = () => {
 
           {activeSection === 'editais' && <EditaisSection />}
 
-          {activeSection === 'blog' && <BlogSection />}
+          {activeSection === 'blog' && <BlogSectionADM />}
 
           {activeSection === 'perfil' && <ProfileSection user={{
             nomeCompleto: "Ana Carolina Silva",
