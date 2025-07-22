@@ -7,13 +7,39 @@ import { SectionPlaceholder } from '@/components/shared/platform/selection-place
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { FiUser, FiFileText, FiZap, FiLogOut } from 'react-icons/fi';
+import EditalPage from '../edital-page/EditalPage';
+import EditalReviewer from '../edital-reviewer/EditalReviewer';
+
+
+interface Idea {
+  id: number;
+  entrepreneur: {
+    name: string;
+    avatar: string;
+    email?: string;
+    phone?: string;
+  };
+  projectName: string;
+  problem: string;
+  solution: string;
+  targetAudience: string;
+  differential: string;
+  resourcesNeeded: string;
+  implementationTime: string;
+  edital: string;
+  submissionDate: string;
+  status: string;
+}
 
 const PlatformReviewerPage = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('ideias');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
-  
+
+
+
+
   // Mock data completo para o perfil do avaliador
   const user = {
     name: 'Ana Revisora',
@@ -41,6 +67,8 @@ const PlatformReviewerPage = () => {
     areasEspecializacao: ["TI", "Marketing", "Finanças"],
     descricaoIncubacao: "Experiência com mais de 50 startups avaliadas em programas de incubação"
   };
+
+
 
   const menuItems = [
     { id: 'perfil', label: 'Perfil', icon: <FiUser className="w-5 h-5" /> },
@@ -78,12 +106,12 @@ const PlatformReviewerPage = () => {
 
   return (
     <div className="min-h-screen bg-[#F5F5F5]">
-      <AppHeader 
-        user={{ name: user.name, avatar: user.avatar }} 
-        isMenuOpen={isMenuOpen} 
-        setIsMenuOpen={setIsMenuOpen} 
+      <AppHeader
+        user={{ name: user.name, avatar: user.avatar }}
+        isMenuOpen={isMenuOpen}
+        setIsMenuOpen={setIsMenuOpen}
       />
-      
+
       <div className="container mx-auto px-4 py-8 flex">
         <AppSidebar
           isMenuOpen={isMenuOpen}
@@ -100,14 +128,30 @@ const PlatformReviewerPage = () => {
                 <h2 className="text-2xl font-bold text-[#3A6ABE] mb-2">Ideias para avaliação</h2>
                 <p className="text-[#3A6ABE]/80">Você tem {allIdeas.length} ideias para avaliar</p>
               </div>
-              
+
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 {currentIdeas.map((idea) => (
-                  <IdeaCardReviewer key={idea.id} idea={idea} />
+                  <IdeaCardReviewer idea={{
+                    id: 1,
+                    entrepreneur: {
+                      name: "Empreendedor Exemplo",
+                      avatar: "url-da-avatar.jpg"
+                    },
+                    projectName: "Projeto Inovador",
+                    problem: "Problema que o projeto resolve",
+                    solution: "Solução proposta",
+                    targetAudience: "Público-alvo",
+                    differential: "Diferenciais competitivos",
+                    resourcesNeeded: "Recursos necessários",
+                    implementationTime: "6 meses",
+                    edital: "Edital de Inovação 2023",
+                    submissionDate: "2023-10-15",
+                    status: "Em análise"
+                  }} />
                 ))}
               </div>
 
-              <IdeasPagination 
+              <IdeasPagination
                 currentPage={currentPage}
                 totalPages={totalPages}
                 onPageChange={handlePageChange}
@@ -139,20 +183,18 @@ const PlatformReviewerPage = () => {
             }} />
           )}
 
-          {!['ideias', 'perfil'].includes(activeSection) && (
-            <>
-              <SectionPlaceholder
-                icon={menuItems.find(item => item.id === activeSection)?.icon}
-                title={menuItems.find(item => item.id === activeSection)?.label || ''}
-                description={activeSection === 'sair' ? 'Deseja realmente sair?' : 'Seção em desenvolvimento'}
-              />
-              {activeSection === 'sair' && (
-                <Button variant="outline" className="mt-4 border-[#3A6ABE] text-[#3A6ABE] hover:bg-[#3A6ABE]/10">
-                  Confirmar saída
-                </Button>
-              )}
-            </>
+          {activeSection === 'edital' && (
+            <EditalReviewer />
           )}
+
+
+          {activeSection === 'sair' && (
+            <Button variant="outline" className="mt-4 border-[#3A6ABE] text-[#3A6ABE] hover:bg-[#3A6ABE]/10">
+              Confirmar saída
+            </Button>
+          )}
+
+
         </main>
       </div>
     </div>
