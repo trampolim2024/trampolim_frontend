@@ -74,10 +74,13 @@ const PlatformAdminPage = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleMakeAdmin = (reviewerId: number) => {
-    console.log(`Avaliador ${reviewerId} promovido a admin`);
-    // Implementar lógica real aqui
-  };
+const handleMakeAdmin = async (reviewerId: number): Promise<void> => {
+  console.log(`Avaliador ${reviewerId} promovido a admin`);
+  // Implementar lógica real aqui
+  
+  // Retorna uma Promise resolvida para satisfazer a tipagem
+  return Promise.resolve();
+};
 
   return (
     <div className="min-h-screen bg-[#F5F5F5]">
