@@ -2,14 +2,23 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
-import { FiMail, FiAward, FiBook, FiCalendar, FiShield } from "react-icons/fi";
+import { FiMail, FiAward, FiBook, FiCalendar, FiShield, FiX, FiCheck } from "react-icons/fi";
 import { Badge } from "@/components/ui/badge";
-
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 interface Reviewer {
   id: number;
   name: string;
   avatar: string;
+  email?: string; // Adicionando campo email
   formation: string;
   age: number;
   isAdmin?: boolean;
@@ -21,7 +30,7 @@ interface ReviewersSectionProps {
   currentPage: number;
   itemsPerPage: number;
   onPageChange: (page: number, maxPages: number) => void;
-  onMakeAdmin: (reviewerId: number) => void;
+  onMakeAdmin: (reviewerId: number) => Promise<void>; // Alterado para Promise para lidar com operação assíncrona
 }
 
 export const ReviewersSection = ({
@@ -36,6 +45,18 @@ export const ReviewersSection = ({
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
+
+  const handleEmailClick = (email: string = 'exemplo@email.com') => {
+    window.location.href = `mailto:${email}`;
+  };
+
+  const handleMakeAdmin = async (reviewerId: number) => {
+    try {
+      await onMakeAdmin(reviewerId);
+    } catch (error) {
+      console.error('Erro ao promover usuário:', error);
+    }
+  };
 
   return (
     <div>
@@ -115,18 +136,55 @@ export const ReviewersSection = ({
                   variant="outline"
                   size="sm"
                   className="border-[#3A6ABE] text-[#3A6ABE] hover:bg-[#3A6ABE]/10 h-10"
+                  onClick={() => handleEmailClick(reviewer.email)}
                 >
                   <FiMail className="mr-2" /> Email
                 </Button>
 
-                <Button
-                  size="sm"
-                  className={`h-10 ${reviewer.isAdmin ? 'bg-[#F79B4B] hover:bg-[#F79B4B]/90' : 'bg-[#3A6ABE] hover:bg-[#3A6ABE]/90'}`}
-                  onClick={() => onMakeAdmin(reviewer.id)}
-                >
-                  <FiAward className="mr-2" />
-                  {reviewer.isAdmin ? 'Admin' : 'Promover'}
-                </Button>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button
+                      size="sm"
+                      className={`h-10 ${reviewer.isAdmin ? 'bg-[#F79B4B] hover:bg-[#F79B4B]/90' : 'bg-[#3A6ABE] hover:bg-[#3A6ABE]/90'}`}
+                    >
+                      <FiAward className="mr-2" />
+                      {reviewer.isAdmin ? 'Admin' : 'Promover'}
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle className="text-[#3A6ABE]">
+                        {reviewer.isAdmin ? 'Remover privilégios de admin?' : 'Promover a administrador?'}
+                      </DialogTitle>
+                      <DialogDescription className="text-[#3A6ABE]/80">
+                        {reviewer.isAdmin 
+                          ? `Ao confirmar, ${reviewer.name} perderá os privilégios de administrador.`
+                          : `Ao confirmar, ${reviewer.name} terá acesso completo ao painel administrativo.`}
+                      </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter className="mt-4">
+                      <div className="flex gap-3 w-full">
+                        <Button
+                          variant="outline"
+                          className="flex-1 border-[#3A6ABE] text-[#3A6ABE] hover:bg-[#3A6ABE]/10"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            document.getElementById('dialog-close')?.click();
+                          }}
+                        >
+                          <FiX className="mr-2" /> Cancelar
+                        </Button>
+                        <Button
+                          className={`flex-1 ${reviewer.isAdmin ? 'bg-[#F79B4B] hover:bg-[#F79B4B]/90' : 'bg-[#3A6ABE] hover:bg-[#3A6ABE]/90'}`}
+                          onClick={() => handleMakeAdmin(reviewer.id)}
+                        >
+                          <FiCheck className="mr-2" /> Confirmar
+                        </Button>
+                      </div>
+                      <button id="dialog-close" className="hidden" />
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </div>
             </div>
           </Card>
