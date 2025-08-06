@@ -1,8 +1,21 @@
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { FiMail, FiLock, FiEye, FiEyeOff, FiLogIn, FiArrowRight } from 'react-icons/fi';
 import '../../../index.css';
 import Navbar from '@/components/shared/navbar/Navbar';
+import { useNavigate } from 'react-router-dom';
+
+// Tipo para a resposta da API, garantindo que o TypeScript saiba o que esperar
+interface LoginResponse {
+  message: string;
+  token: string;
+  user: {
+    _id: string;
+    fullName: string;
+    email: string;
+    type: string[];
+  };
+}
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({
@@ -11,21 +24,21 @@ const LoginPage = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null); // Estado para guardar mensagens de erro
   const [shake, setShake] = useState(false);
   const [currentBg, setCurrentBg] = useState(0);
   const [isFocused, setIsFocused] = useState({
     email: false,
     password: false
   });
+   const navigate = useNavigate();
 
-  // Backgrounds alternados
   const backgrounds = [
     'bg-gradient-to-br from-[#3A6ABE]/10 to-[#F79B4B]/10',
     'bg-gradient-to-br from-[#F79B4B]/10 to-[#3A6ABE]/10',
     'bg-gradient-to-br from-[#3A6ABE]/20 to-[#F79B4B]/20'
   ];
 
-  // Alternar backgrounds
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentBg((prev) => (prev + 1) % backgrounds.length);
@@ -36,30 +49,64 @@ const LoginPage = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    if (error) setError(null); // Limpa o erro assim que o usuário começa a digitar
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!formData.email || !formData.password) {
-      triggerShake();
-      return;
-    }
+   // --- FUNÇÃO MOVIDA PARA CIMA ---
 
-    setIsLoading(true);
-    
-    // Simulação de login
-    setTimeout(() => {
-      console.log('Login attempt:', formData);
-      setIsLoading(false);
-      // Mock de erro para demonstrar o efeito
-      if (formData.password.length < 6) {
-        triggerShake();
-      } else {
-        alert('Login realizado com sucesso!');
-      }
-    }, 1500);
-  };
+  const handleSubmit = async (e: React.FormEvent) => {
+   e.preventDefault();
+   setError(null);
+
+   if (!formData.email || !formData.password) {
+     triggerShake();
+     setError('Por favor, preencha todos os campos.');
+     return;
+   }
+
+   setIsLoading(true);
+
+   try {
+     const response = await fetch('http://localhost:8080/api/v1/trampolim/auth/signin', {
+       method: 'POST',
+       headers: {
+         'Content-Type': 'application/json',
+       },
+       body: JSON.stringify(formData),
+     });
+
+     // Supondo que você tenha uma interface LoginResponse
+     const data: LoginResponse & { message: string } = await response.json();
+
+     if (!response.ok) {
+       throw new Error(data.message || 'Erro ao tentar fazer login. Verifique suas credenciais.');
+     }
+     
+     const { token, user } = data;
+
+     // ---- CORREÇÃO APLICADA AQUI ----
+     // Salve o token e os dados do usuário com as chaves corretas
+     localStorage.setItem('authToken', token);
+     localStorage.setItem('user', JSON.stringify(user)); // MUDOU DE 'userData' PARA 'user'
+
+     // Redirecionar com base no perfil do usuário
+     if (user.type.includes('admin')) {
+       navigate('/logado-adm');
+     } else if (user.type.includes('reviewer')) {
+       navigate('/logado-avaliador');
+     } else if (user.type.includes('entrepreneur')) {
+       navigate('/logado-empreendedor');
+     } else {
+       navigate('/'); 
+     }
+
+   } catch (err: any) {
+     setError(err.message);
+     triggerShake();
+   } finally {
+     setIsLoading(false);
+   }
+ };
 
   const triggerShake = () => {
     setShake(true);
@@ -172,7 +219,6 @@ const LoginPage = () => {
               transition={{ delay: 0.4, duration: 0.8 }}
             >
               <div className="relative p-6 md:p-8 lg:p-10 bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl lg:shadow-2xl overflow-hidden">
-                {/* Decorative elements */}
                 <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-[#F79B4B]/10 blur-xl z-0 hidden md:block"></div>
                 <div className="absolute -bottom-20 -left-20 w-64 h-64 rounded-full bg-[#3A6ABE]/10 blur-xl z-0 hidden md:block"></div>
                 
@@ -186,6 +232,17 @@ const LoginPage = () => {
                   </div>
                   
                   <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
+                    {/* --- Bloco para exibir a mensagem de erro --- */}
+                    {error && (
+                      <motion.div
+                        className="p-3 mb-4 text-sm text-center text-red-800 bg-red-100 rounded-lg"
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                      >
+                        {error}
+                      </motion.div>
+                    )}
+
                     {/* Email Field */}
                     <div>
                       <label htmlFor="email" className="block text-sm md:text-base font-medium text-[#3A6ABE] mb-1 md:mb-2">
