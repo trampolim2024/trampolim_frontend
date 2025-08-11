@@ -6,7 +6,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { TiptapEditor } from '@/components/features/tiptap-editor/TiptapEditor';
 
-// Tipo para os dados de um Post que vêm da API
 interface Post {
   _id: string;
   title: string;
@@ -31,7 +30,6 @@ export const BlogSectionADM = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  // Função para buscar os posts da API
   const fetchPosts = async () => {
     setIsLoading(true);
     setError(null);
@@ -47,7 +45,6 @@ export const BlogSectionADM = () => {
     }
   };
 
-  // Busca os posts quando a aba 'list' é ativada
   useEffect(() => {
     if (activeTab === 'list') {
       fetchPosts();
@@ -107,7 +104,7 @@ export const BlogSectionADM = () => {
       setIsLoading(false);
     }
   };
-  
+
   const handleDelete = async (postId: string) => {
     if (!window.confirm('Tem certeza que deseja excluir esta publicação?')) return;
 
@@ -130,7 +127,7 @@ export const BlogSectionADM = () => {
 
       setSuccess('Publicação excluída com sucesso!');
       setPosts(prevPosts => prevPosts.filter(p => p._id !== postId));
-      
+
     } catch (err: any) {
       setError(err.message);
     }
@@ -146,16 +143,16 @@ export const BlogSectionADM = () => {
           <h2 className="text-2xl font-bold text-[#3A6ABE] mb-1">Gerenciar Blog</h2>
           <p className="text-[#3A6ABE]/80">Crie e publique conteúdo para a comunidade</p>
         </div>
-        
+
         <div className="flex space-x-2">
-          <Button 
+          <Button
             variant={activeTab === 'create' ? 'default' : 'outline'}
             className={activeTab === 'create' ? 'bg-[#3A6ABE] hover:bg-[#3A6ABE]/90' : 'border-[#3A6ABE] text-[#3A6ABE] hover:bg-[#3A6ABE]/10'}
             onClick={() => setActiveTab('create')}
           >
             <FiPlus className="mr-2" /> Nova Publicação
           </Button>
-          <Button 
+          <Button
             variant={activeTab === 'list' ? 'default' : 'outline'}
             className={activeTab === 'list' ? 'bg-[#3A6ABE] hover:bg-[#3A6ABE]/90' : 'border-[#3A6ABE] text-[#3A6ABE] hover:bg-[#3A6ABE]/10'}
             onClick={() => setActiveTab('list')}
@@ -175,15 +172,15 @@ export const BlogSectionADM = () => {
               <span className="w-2 h-6 bg-[#F79B4B] rounded-full mr-3"></span>
               Nova Publicação
             </h3>
-            
+
             <div className="space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="blog-title" className="text-[#3A6ABE]/80">Título da Notícia</Label>
-                <Input 
-                  id="blog-title" 
-                  placeholder="Ex: Novas oportunidades para empreendedores" 
+                <Input
+                  id="blog-title"
+                  placeholder="Ex: Novas oportunidades para empreendedores"
                   value={blogForm.title}
-                  onChange={(e) => setBlogForm({...blogForm, title: e.target.value})}
+                  onChange={(e) => setBlogForm({ ...blogForm, title: e.target.value })}
                   className="border-[#3A6ABE]/40 focus:border-[#3A6ABE]/60"
                 />
               </div>
@@ -192,8 +189,8 @@ export const BlogSectionADM = () => {
                 <Label htmlFor="blog-image" className="text-[#3A6ABE]/80">Imagem de Capa</Label>
                 <div className="flex items-center space-x-4">
                   <div className="relative flex-1">
-                    <Label 
-                      htmlFor="blog-image" 
+                    <Label
+                      htmlFor="blog-image"
                       className="flex flex-col items-center justify-center w-full h-32 border-2 border-[#3A6ABE]/30 border-dashed rounded-lg cursor-pointer hover:bg-[#3A6ABE]/5 transition-colors"
                     >
                       <div className="flex flex-col items-center justify-center pt-5 pb-6">
@@ -206,9 +203,9 @@ export const BlogSectionADM = () => {
                           )}
                         </p>
                       </div>
-                      <Input 
-                        id="blog-image" 
-                        type="file" 
+                      <Input
+                        id="blog-image"
+                        type="file"
                         accept="image/*"
                         onChange={handleFileChange}
                         className="hidden"
@@ -217,9 +214,9 @@ export const BlogSectionADM = () => {
                   </div>
                   {blogForm.coverImage && (
                     <div className="w-32 h-32 rounded-md overflow-hidden border border-[#3A6ABE]/20 shrink-0">
-                      <img 
-                        src={URL.createObjectURL(blogForm.coverImage)} 
-                        alt="Preview" 
+                      <img
+                        src={URL.createObjectURL(blogForm.coverImage)}
+                        alt="Preview"
                         className="w-full h-full object-cover"
                       />
                     </div>
@@ -230,17 +227,17 @@ export const BlogSectionADM = () => {
               <div className="space-y-2">
                 <Label className="text-[#3A6ABE]/80 mb-2 block">Conteúdo</Label>
                 <div className="border border-[#3A6ABE]/20 rounded-lg overflow-hidden">
-                  <TiptapEditor 
-                    content={blogForm.content} 
+                  <TiptapEditor
+                    content={blogForm.content}
                     onChange={handleContentChange}
                   />
                 </div>
               </div>
 
               <div className="flex justify-end space-x-3 pt-4">
-                <Button 
+                <Button
                   type="button"
-                  variant="outline" 
+                  variant="outline"
                   className="border-[#3A6ABE] text-[#3A6ABE] hover:bg-[#3A6ABE]/10 h-11 rounded-lg font-medium"
                 >
                   <FiSave className="mr-2" /> Salvar Rascunho
@@ -259,24 +256,23 @@ export const BlogSectionADM = () => {
           <div className="flex items-center justify-between">
             <h3 className="text-xl font-bold text-[#3A6ABE]">Publicações Recentes</h3>
           </div>
-          
+
           {isLoading ? (
             <p className="text-[#3A6ABE]/80 col-span-full text-center py-8">Carregando publicações...</p>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {/* --- CORREÇÃO APLICADA AQUI --- */}
               {posts.map((post) => (
-                <Card 
-                  key={post._id} 
+                <Card
+                  key={post._id}
                   className="overflow-hidden border-[#3A6ABE]/20 hover:border-[#3A6ABE]/40 hover:shadow-lg transition-all rounded-xl group flex flex-col"
                 >
                   <div className="relative aspect-video overflow-hidden">
-<img 
-  // AGORA SIM, ESTA LÓGICA VAI FUNCIONAR
-  src={`${API_BASE_URL}${post.coverImage}`} 
-  alt={post.title} 
-  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-/>
+                    <img
+                      src={`${API_BASE_URL}${post.coverImage}`}
+                      alt={post.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
 
                   </div>
                   <div className="p-5 flex flex-col flex-grow">
@@ -288,16 +284,16 @@ export const BlogSectionADM = () => {
                       {post.title}
                     </h4>
                     <div className="flex justify-end space-x-2 mt-4">
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
+                      <Button
+                        variant="outline"
+                        size="sm"
                         className="border-[#3A6ABE] text-[#3A6ABE] hover:bg-[#3A6ABE]/10"
                       >
                         Editar
                       </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
+                      <Button
+                        variant="outline"
+                        size="sm"
                         className="border-red-500 text-red-500 hover:bg-red-500/10"
                         onClick={() => handleDelete(post._id)}
                       >

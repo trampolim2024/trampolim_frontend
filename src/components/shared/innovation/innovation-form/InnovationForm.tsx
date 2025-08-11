@@ -6,12 +6,11 @@ import { useState } from "react";
 import { FiPlus } from "react-icons/fi";
 import { MemberInput } from "../members-input/MemberInput";
 
-// --- INTERFACES ---
 interface MemberState {
   nome: string;
   cpf: string;
-  foto: File | null; // O arquivo real para upload
-  previewUrl: string | undefined; // A URL temporária para exibição
+  foto: File | null; 
+  previewUrl: string | undefined; 
 }
 
 interface InnovationFormProps {
@@ -35,14 +34,12 @@ export const InnovationForm = ({ hasActiveEdital, hasSubmitted, onSubmit }: Inno
 
   const [isLoading, setIsLoading] = useState(false);
 
-  // --- FUNÇÕES DE MANIPULAÇÃO ---
   const handleChange = (field: string, value: string | File | null) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   const handleMemberTextChange = (index: number, field: string, value: string) => {
     const updatedMembers = [...formData.members];
-    // Converte 'name' para 'nome' para bater com o estado
     const stateField = field === 'name' ? 'nome' : field;
     if (stateField === 'nome' || stateField === 'cpf') {
       updatedMembers[index][stateField] = value;
@@ -53,7 +50,6 @@ export const InnovationForm = ({ hasActiveEdital, hasSubmitted, onSubmit }: Inno
   const handleMemberPhotoChange = (index: number, file: File | null) => {
     const updatedMembers = [...formData.members];
     updatedMembers[index].foto = file;
-    // Cria ou revoga a URL de preview para a imagem
     updatedMembers[index].previewUrl = file ? URL.createObjectURL(file) : undefined;
     setFormData(prev => ({ ...prev, members: updatedMembers }));
   };
@@ -70,7 +66,6 @@ export const InnovationForm = ({ hasActiveEdital, hasSubmitted, onSubmit }: Inno
   const removeMember = (index: number) => {
     if (index > 0) {
       const memberToRemove = formData.members[index];
-      // Limpa a URL da memória para evitar memory leaks
       if (memberToRemove.previewUrl) {
         URL.revokeObjectURL(memberToRemove.previewUrl);
       }
@@ -102,7 +97,6 @@ export const InnovationForm = ({ hasActiveEdital, hasSubmitted, onSubmit }: Inno
     setIsLoading(false);
   };
 
-  // --- TELAS DE ESTADO ---
   if (hasSubmitted) {
     return (
       <div className="bg-white rounded-xl border border-[#3A6ABE]/20 p-8 text-center">
@@ -129,7 +123,6 @@ export const InnovationForm = ({ hasActiveEdital, hasSubmitted, onSubmit }: Inno
     );
   }
 
-  // --- RENDERIZAÇÃO DO FORMULÁRIO ---
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
       {/* Informações Básicas */}

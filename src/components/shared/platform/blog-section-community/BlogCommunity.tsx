@@ -9,7 +9,6 @@ import { PostsGrid } from "../../blog/post-grid/PostsGrid";
 import { NewsletterCTA } from "../../blog/news-letter-cta/NewsletterCTA";
 
 export default function BlogCommunity() {
-  // Estados
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
   const [activeTab, setActiveTab] = useState("posts");
@@ -59,7 +58,6 @@ export default function BlogCommunity() {
       likes: 89,
       comments: 14,
     },
-    // Mais posts...
   ];
 
   const comments = [
@@ -85,10 +83,8 @@ export default function BlogCommunity() {
         },
       ],
     },
-    // Mais comentários...
   ];
 
-  // Handlers
   const handleLikePost = (postId: string) => {
     console.log(`Post ${postId} curtido`);
     // Implementar lógica de curtida

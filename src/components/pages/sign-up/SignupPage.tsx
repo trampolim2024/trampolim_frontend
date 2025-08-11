@@ -8,7 +8,6 @@ import {
 import Navbar from '@/components/shared/navbar/Navbar';
 import { useNavigate } from 'react-router-dom';
 
-// Tipos para a resposta da API
 interface SignUpResponse {
   message: string;
   token: string;
@@ -41,7 +40,7 @@ const SignUpPage = () => {
     miniResume: "",
     email: "",
     password: "",
-    confirmPassword: "", // Campo para validação
+    confirmPassword: "", 
     photoUrl: null as File | null,
     
     companyName: "",
@@ -85,87 +84,94 @@ const SignUpPage = () => {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setSuccess(null);
+  e.preventDefault();
+  setError(null);
+  setSuccess(null);
 
-    if (formData.password !== formData.confirmPassword) {
-      setError("As senhas não coincidem.");
-      return;
-    }
-    if (!formData.photoUrl) {
-      setError("A foto de perfil é obrigatória.");
-      return;
-    }
+  if (formData.password !== formData.confirmPassword) {
+    setError("As senhas não coincidem.");
+    return;
+  }
+  if (!formData.photoUrl) {
+    setError("A foto de perfil é obrigatória.");
+    return;
+  }
 
-    setIsLoading(true);
+  setIsLoading(true);
 
-    const dataToSend = new FormData();
+  const dataToSend = new FormData();
 
-    // Adiciona todos os campos de texto
-    dataToSend.append('fullName', formData.fullName);
-    dataToSend.append('educationLevel', formData.educationLevel);
-    dataToSend.append('fieldOfActivity', formData.fieldOfActivity);
-    dataToSend.append('gender', formData.gender);
-    dataToSend.append('cpf', formData.cpf);
-    dataToSend.append('phone', formData.phone);
-    dataToSend.append('zipCode', formData.zipCode);
-    dataToSend.append('state', formData.state);
-    dataToSend.append('city', formData.city);
-    dataToSend.append('neighborhood', formData.neighborhood);
-    dataToSend.append('address', formData.address);
-    dataToSend.append('linkedin', formData.linkedin);
-    dataToSend.append('miniResume', formData.miniResume);
-    dataToSend.append('email', formData.email);
-    dataToSend.append('password', formData.password);
-    if (userType) {
-      dataToSend.append('type', userType);
-    }
+  dataToSend.append('fullName', formData.fullName);
+  dataToSend.append('educationLevel', formData.educationLevel);
+  dataToSend.append('fieldOfActivity', formData.fieldOfActivity);
+  dataToSend.append('gender', formData.gender);
+  dataToSend.append('cpf', formData.cpf.replace(/\D/g, '')); 
+  dataToSend.append('phone', formData.phone.replace(/\D/g, '')); 
+  dataToSend.append('zipCode', formData.zipCode.replace(/\D/g, '')); 
+  dataToSend.append('state', formData.state);
+  dataToSend.append('city', formData.city);
+  dataToSend.append('neighborhood', formData.neighborhood);
+  dataToSend.append('address', formData.address);
+  dataToSend.append('linkedin', formData.linkedin);
+  dataToSend.append('miniResume', formData.miniResume);
+  dataToSend.append('email', formData.email);
+  dataToSend.append('password', formData.password);
+  if (userType) {
+    dataToSend.append('type', userType);
+  }
 
-    // Adiciona a foto
-    dataToSend.append('photoUrl', formData.photoUrl);
+  if (formData.photoUrl) {
+    dataToSend.append('photo', formData.photoUrl);
+  }
 
-    // Adiciona os campos específicos do perfil como strings JSON
-    if (userType === 'entrepreneur') {
-      const entrepreneurData = {
-        companyName: formData.companyName,
-        businessDescription: formData.businessDescription,
-        companyWebsite: formData.companyWebsite,
-      };
-      dataToSend.append('entrepreneur', JSON.stringify(entrepreneurData));
-    } else if (userType === 'reviewer') {
-      const reviewerData = {
-        mentoredStartup: formData.mentoredStartup,
-        incubationDescription: formData.incubationDescription,
-        specializationAreas: formData.specializationAreas,
-      };
-      dataToSend.append('reviewer', JSON.stringify(reviewerData));
-    }
-
-    try {
-      const response = await fetch('http://localhost:8080/api/v1/trampolim/auth/signup', {
-        method: 'POST',
-        body: dataToSend,
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Ocorreu um erro no cadastro.');
+  if (userType === 'entrepreneur') {
+    const entrepreneurData = {
+      companyName: formData.companyName,
+      businessDescription: formData.businessDescription,
+      companyWebsite: formData.companyWebsite,
+    };
+    Object.entries(entrepreneurData).forEach(([key, value]) => {
+      dataToSend.append(`entrepreneur[${key}]`, value);
+    });
+  } else if (userType === 'reviewer') {
+    const reviewerData = {
+      mentoredStartup: formData.mentoredStartup,
+      incubationDescription: formData.incubationDescription,
+      specializationAreas: formData.specializationAreas,
+    };
+     Object.entries(reviewerData).forEach(([key, value]) => {
+      if (Array.isArray(value)) {
+        value.forEach(item => dataToSend.append(`reviewer[${key}][]`, item));
+      } else {
+        dataToSend.append(`reviewer[${key}]`, String(value));
       }
+    });
+  }
 
-      setSuccess('Cadastro realizado com sucesso! Você será redirecionado para o login em instantes.');
-      
-      setTimeout(() => {
-        navigate('/login');
-      }, 2500);
+  try {
+    const response = await fetch('http://localhost:8080/api/v1/trampolim/auth/signup', {
+      method: 'POST',
+      body: dataToSend,
+    });
 
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setIsLoading(false);
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Ocorreu um erro no cadastro.');
     }
-  };
+
+    setSuccess('Cadastro realizado com sucesso! Você será redirecionado para o login em instantes.');
+    
+    setTimeout(() => {
+      navigate('/login');
+    }, 2500);
+
+  } catch (err: any) {
+    setError(err.message);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   return (
     <div className="bg-[#F5F5F5] min-h-screen">

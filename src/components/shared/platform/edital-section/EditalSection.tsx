@@ -16,7 +16,6 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from '@/components/ui/textarea';
 
-// Tipos para os dados da API
 interface EvaluationSystem {
   _id: string;
   name: string;
@@ -51,13 +50,10 @@ export const EditaisSection = () => {
 
   const [evaluationSystems, setEvaluationSystems] = useState<EvaluationSystem[]>([]);
   const [editais, setEditais] = useState<Edital[]>([]);
-  
   const [isLoading, setIsLoading] = useState(false);
   const [isModalLoading, setIsModalLoading] = useState(false);
-  
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const fetchData = async () => {
@@ -147,7 +143,6 @@ export const EditaisSection = () => {
     }
   };
 
-  // --- Funções para o Modal de Sistema de Avaliação ---
   const handleTopicChange = (index: number, field: keyof Topic, value: string | number) => {
     const newTopics = [...systemForm.topics];
     (newTopics[index] as any)[field] = value;
@@ -162,7 +157,7 @@ export const EditaisSection = () => {
   };
 
   const removeTopic = (index: number) => {
-    if (systemForm.topics.length <= 1) return; // Garante que sempre haja pelo menos um tópico
+    if (systemForm.topics.length <= 1) return; 
     const newTopics = systemForm.topics.filter((_, i) => i !== index);
     setSystemForm(prev => ({ ...prev, topics: newTopics }));
   };
@@ -186,9 +181,9 @@ export const EditaisSection = () => {
 
       setSystemForm({ name: '', description: '', topics: [{ topicName: '', maxScore: 10 }] });
       setIsModalOpen(false);
-      fetchData(); // Atualiza a lista de sistemas no formulário principal
+      fetchData(); 
     } catch (err: any) {
-      setError(err.message); // Exibe o erro no formulário principal
+      setError(err.message);
     } finally {
       setIsModalLoading(false);
     }

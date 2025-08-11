@@ -5,7 +5,6 @@ import '../../../index.css';
 import Navbar from '@/components/shared/navbar/Navbar';
 import { useNavigate } from 'react-router-dom';
 
-// Tipo para a resposta da API, garantindo que o TypeScript saiba o que esperar
 interface LoginResponse {
   message: string;
   token: string;
@@ -24,7 +23,7 @@ const LoginPage = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null); // Estado para guardar mensagens de erro
+  const [error, setError] = useState<string | null>(null); 
   const [shake, setShake] = useState(false);
   const [currentBg, setCurrentBg] = useState(0);
   const [isFocused, setIsFocused] = useState({
@@ -49,10 +48,9 @@ const LoginPage = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    if (error) setError(null); // Limpa o erro assim que o usuário começa a digitar
+    if (error) setError(null);
   };
 
-   // --- FUNÇÃO MOVIDA PARA CIMA ---
 
   const handleSubmit = async (e: React.FormEvent) => {
    e.preventDefault();
@@ -75,7 +73,6 @@ const LoginPage = () => {
        body: JSON.stringify(formData),
      });
 
-     // Supondo que você tenha uma interface LoginResponse
      const data: LoginResponse & { message: string } = await response.json();
 
      if (!response.ok) {
@@ -84,12 +81,9 @@ const LoginPage = () => {
      
      const { token, user } = data;
 
-     // ---- CORREÇÃO APLICADA AQUI ----
-     // Salve o token e os dados do usuário com as chaves corretas
      localStorage.setItem('authToken', token);
-     localStorage.setItem('user', JSON.stringify(user)); // MUDOU DE 'userData' PARA 'user'
+     localStorage.setItem('user', JSON.stringify(user));
 
-     // Redirecionar com base no perfil do usuário
      if (user.type.includes('admin')) {
        navigate('/logado-adm');
      } else if (user.type.includes('reviewer')) {
@@ -117,7 +111,6 @@ const LoginPage = () => {
     <div className={`min-h-screen transition-all duration-1000 ${backgrounds[currentBg]}`}>
       <Navbar />
       
-      {/* Particle Background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {[...Array(20)].map((_, i) => (
           <motion.div
@@ -151,7 +144,6 @@ const LoginPage = () => {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8 }}
           >
-            {/* Left Side - Illustration */}
             <motion.div
               className="w-full lg:w-1/2 max-w-xl mb-10 lg:mb-0"
               initial={{ x: -50, opacity: 0 }}
@@ -211,7 +203,6 @@ const LoginPage = () => {
               </div>
             </motion.div>
 
-            {/* Right Side - Login Form */}
             <motion.div
               className={`w-full lg:w-1/2 max-w-md ${shake ? 'animate-shake' : ''}`}
               initial={{ x: 50, opacity: 0 }}
@@ -232,7 +223,6 @@ const LoginPage = () => {
                   </div>
                   
                   <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
-                    {/* --- Bloco para exibir a mensagem de erro --- */}
                     {error && (
                       <motion.div
                         className="p-3 mb-4 text-sm text-center text-red-800 bg-red-100 rounded-lg"
@@ -243,7 +233,6 @@ const LoginPage = () => {
                       </motion.div>
                     )}
 
-                    {/* Email Field */}
                     <div>
                       <label htmlFor="email" className="block text-sm md:text-base font-medium text-[#3A6ABE] mb-1 md:mb-2">
                         E-mail
@@ -267,7 +256,6 @@ const LoginPage = () => {
                       </div>
                     </div>
                     
-                    {/* Password Field */}
                     <div>
                       <label htmlFor="password" className="block text-sm md:text-base font-medium text-[#3A6ABE] mb-1 md:mb-2">
                         Senha
