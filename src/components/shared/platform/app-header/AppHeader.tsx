@@ -1,11 +1,12 @@
 import { FiMenu, FiX, FiBell, FiHelpCircle } from 'react-icons/fi';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom'; 
 
 interface AppHeaderProps {
   user: {
     name: string;
-    avatar: string;
+    avatar: string; 
     role?: string;
   };
   isMenuOpen: boolean;
@@ -25,14 +26,10 @@ export const AppHeader = ({ user, isMenuOpen, setIsMenuOpen }: AppHeaderProps) =
               className="md:hidden text-[#3A6ABE] hover:text-[#F79B4B] hover:bg-[#3A6ABE]/10"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
-              {isMenuOpen ? (
-                <FiX className="w-5 h-5" />
-              ) : (
-                <FiMenu className="w-5 h-5" />
-              )}
+              {isMenuOpen ? <FiX className="w-5 h-5" /> : <FiMenu className="w-5 h-5" />}
             </Button>
             
-            <div className="flex items-center">
+            <Link to="/" className="flex items-center">
               <img
                 src="/trampolim-hero.png"
                 alt="Logo do Trampolim"
@@ -43,27 +40,17 @@ export const AppHeader = ({ user, isMenuOpen, setIsMenuOpen }: AppHeaderProps) =
                   {user.role}
                 </span>
               )}
-            </div>
+            </Link>
           </div>
 
           {/* Área de ações do usuário */}
           <div className="flex items-center space-x-3 sm:space-x-4">
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="text-[#3A6ABE] hover:text-[#F79B4B] hover:bg-[#3A6ABE]/10 relative"
-              aria-label="Notificações"
-            >
+            <Button variant="ghost" size="icon" className="text-[#3A6ABE] hover:text-[#F79B4B] hover:bg-[#3A6ABE]/10 relative" aria-label="Notificações">
               <FiBell className="w-5 h-5" />
               <span className="absolute top-1 right-1 w-2 h-2 bg-[#F79B4B] rounded-full"></span>
             </Button>
             
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="hidden sm:inline-flex text-[#3A6ABE] hover:text-[#F79B4B] hover:bg-[#3A6ABE]/10"
-              aria-label="Ajuda"
-            >
+            <Button variant="ghost" size="icon" className="hidden sm:inline-flex text-[#3A6ABE] hover:text-[#F79B4B] hover:bg-[#3A6ABE]/10" aria-label="Ajuda">
               <FiHelpCircle className="w-5 h-5" />
             </Button>
             
@@ -77,7 +64,7 @@ export const AppHeader = ({ user, isMenuOpen, setIsMenuOpen }: AppHeaderProps) =
             <Avatar className="w-9 h-9 sm:w-10 sm:h-10 border-2 border-[#3A6ABE]/30 hover:border-[#F79B4B] transition-colors cursor-pointer">
               <AvatarImage src={user.avatar} alt={user.name} />
               <AvatarFallback className="bg-[#3A6ABE]/10 text-[#3A6ABE] font-medium">
-                {user.name.charAt(0)}
+                {user.name ? user.name.charAt(0).toUpperCase() : '?'}
               </AvatarFallback>
             </Avatar>
           </div>

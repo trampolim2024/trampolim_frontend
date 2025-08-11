@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { FiX, FiUser } from 'react-icons/fi'; // Adicionei FiUser para o ícone do perfil
+import { useNavigate } from 'react-router-dom';
+import { FiX, FiUser } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { LogoutModal } from '../logout-modal/LogoutModal';
@@ -26,21 +27,18 @@ export const AppSidebar = ({
   menuItems
 }: AppSidebarProps) => {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const navigate = useNavigate();
 
-  // Garantir que o item de perfil esteja presente nos menuItems
   const completeMenuItems = [
-    {
-      id: 'perfil',
-      label: 'Meu Perfil',
-      icon: <FiUser className="w-5 h-5" />
-    },
-    ...menuItems.filter(item => item.id !== 'perfil') // Remove duplicatas se existirem
+    { id: 'perfil', label: 'Meu Perfil', icon: <FiUser className="w-5 h-5" /> },
+    ...menuItems.filter(item => item.id !== 'perfil')
   ];
 
   const handleLogout = () => {
-    console.log('Logout realizado');
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('user');
     setShowLogoutModal(false);
-    // Adicione sua lógica de logout aqui
+    navigate('/');
   };
 
   return (
@@ -83,7 +81,6 @@ export const AppSidebar = ({
               className="fixed inset-0 bg-black/50 z-20 md:hidden"
               onClick={() => setIsMenuOpen(false)}
             />
-            
             <motion.aside
               initial={{ x: '-100%' }}
               animate={{ x: 0 }}
