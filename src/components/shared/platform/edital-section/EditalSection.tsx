@@ -63,14 +63,14 @@ export const EditaisSection = () => {
       return;
     }
     try {
-      const systemsRes = await fetch('http://localhost:8080/api/v1/trampolim/evaluation-systems', {
+      const systemsRes = await fetch('http://localhost:7070/api/v1/trampolim/evaluation-systems', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!systemsRes.ok) throw new Error('Falha ao buscar sistemas de avaliação.');
       const systemsData = await systemsRes.json();
       setEvaluationSystems(systemsData.evaluationSystems || []);
 
-      const editaisRes = await fetch('http://localhost:8080/api/v1/trampolim/editals', {
+      const editaisRes = await fetch('http://localhost:7070/api/v1/trampolim/editals', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!editaisRes.ok) throw new Error('Falha ao buscar editais.');
@@ -125,7 +125,7 @@ export const EditaisSection = () => {
     formData.append('pdfFile', pdfFile);
 
     try {
-      const response = await fetch('http://localhost:8080/api/v1/trampolim/editals', {
+      const response = await fetch('http://localhost:7070/api/v1/trampolim/editals', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
         body: formData,
@@ -168,7 +168,7 @@ export const EditaisSection = () => {
 
     const token = localStorage.getItem('authToken');
     try {
-      const response = await fetch('http://localhost:8080/api/v1/trampolim/evaluation-systems', {
+      const response = await fetch('http://localhost:7070/api/v1/trampolim/evaluation-systems', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
