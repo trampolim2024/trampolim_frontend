@@ -7,7 +7,7 @@ import { ProfileSection } from '@/components/shared/platform/profile-section/Pro
 import { FiUser, FiFileText, FiZap, FiLogOut } from 'react-icons/fi';
 import EditalReviewer from '../edital-reviewer/EditalReviewer';
 
-const API_BASE_URL = 'http://localhost:8080';
+const API_BASE_URL = 'http://localhost:7070';
 
 interface UserData {
   _id: string;
