@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { FiSearch, FiUserPlus, FiInfo, FiEye, FiUserCheck, FiFileText, FiLink, FiVideo, FiX } from "react-icons/fi";
+import { FiUserPlus, FiEye, FiFileText, FiLink, FiVideo, FiX } from "react-icons/fi";
 
 // --- INTERFACES UNIFICADAS E COMPLETAS ---
 interface Edital {
@@ -48,7 +48,7 @@ interface IdeasSectionProps {
   onPageChange: (page: number) => void;
 }
 
-const API_BASE_URL = 'http://localhost:8080';
+const API_BASE_URL = 'http://localhost:7070';
 
 export const IdeasSection = ({ ideas, reviewers, currentPage, itemsPerPage, onPageChange }: IdeasSectionProps) => {
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
