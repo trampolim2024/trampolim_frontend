@@ -23,14 +23,14 @@ const LoginPage = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null); 
+  const [error, setError] = useState<string | null>(null);
   const [shake, setShake] = useState(false);
   const [currentBg, setCurrentBg] = useState(0);
   const [isFocused, setIsFocused] = useState({
     email: false,
     password: false
   });
-   const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const backgrounds = [
     'bg-gradient-to-br from-[#3A6ABE]/10 to-[#F79B4B]/10',
@@ -53,54 +53,54 @@ const LoginPage = () => {
 
 
   const handleSubmit = async (e: React.FormEvent) => {
-   e.preventDefault();
-   setError(null);
+  e.preventDefault();
+  setError(null);
 
-   if (!formData.email || !formData.password) {
-     triggerShake();
-     setError('Por favor, preencha todos os campos.');
-     return;
-   }
+  if (!formData.email || !formData.password) {
+    triggerShake();
+    setError('Por favor, preencha todos os campos.');
+    return;
+  }
 
-   setIsLoading(true);
+  setIsLoading(true);
 
-   try {
-     const response = await fetch('http://localhost:8080/api/v1/trampolim/auth/signin', {
-       method: 'POST',
-       headers: {
-         'Content-Type': 'application/json',
-       },
-       body: JSON.stringify(formData),
-     });
+  try {
+    const response = await fetch('http://localhost:7070/api/v1/trampolim/auth/signin', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(formData),
+    });
+  
+    const responseData = await response.json();
 
-     const data: LoginResponse & { message: string } = await response.json();
+    if (!response.ok) {
+      throw new Error(responseData.message || 'Erro ao tentar fazer login. Verifique suas credenciais.');
+    }
+    
+    const { token, user } = responseData.data as LoginResponse;
 
-     if (!response.ok) {
-       throw new Error(data.message || 'Erro ao tentar fazer login. Verifique suas credenciais.');
-     }
-     
-     const { token, user } = data;
+    localStorage.setItem('authToken', token);
+    localStorage.setItem('user', JSON.stringify(user));
 
-     localStorage.setItem('authToken', token);
-     localStorage.setItem('user', JSON.stringify(user));
+    if (user.type.includes('admin')) {
+      navigate('/logado-adm');
+    } else if (user.type.includes('reviewer')) {
+      navigate('/logado-avaliador');
+    } else if (user.type.includes('entrepreneur')) {
+      navigate('/logado-empreendedor');
+    } else {
+      navigate('/'); 
+    }
 
-     if (user.type.includes('admin')) {
-       navigate('/logado-adm');
-     } else if (user.type.includes('reviewer')) {
-       navigate('/logado-avaliador');
-     } else if (user.type.includes('entrepreneur')) {
-       navigate('/logado-empreendedor');
-     } else {
-       navigate('/'); 
-     }
-
-   } catch (err: any) {
-     setError(err.message);
-     triggerShake();
-   } finally {
-     setIsLoading(false);
-   }
- };
+  } catch (err: any) {
+    setError(err.message);
+    triggerShake();
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const triggerShake = () => {
     setShake(true);
@@ -110,7 +110,7 @@ const LoginPage = () => {
   return (
     <div className={`min-h-screen transition-all duration-1000 ${backgrounds[currentBg]}`}>
       <Navbar />
-      
+
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {[...Array(20)].map((_, i) => (
           <motion.div
@@ -138,7 +138,7 @@ const LoginPage = () => {
 
       <section className="relative flex items-center justify-center p-4 sm:p-6 min-h-[calc(100vh-80px)]">
         <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl py-10 lg:py-20">
-          <motion.div 
+          <motion.div
             className="flex flex-col lg:flex-row items-center justify-center gap-8 xl:gap-16 2xl:gap-24 w-full"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -153,7 +153,7 @@ const LoginPage = () => {
               <div className="relative">
                 <div className="absolute -top-12 -left-12 w-64 h-64 rounded-full bg-[#F79B4B]/10 blur-3xl z-0 hidden md:block"></div>
                 <div className="absolute -bottom-8 -right-8 w-72 h-72 rounded-full bg-[#3A6ABE]/10 blur-3xl z-0 hidden md:block"></div>
-                
+
                 <div className="relative z-10 p-6 md:p-8 lg:p-10 bg-white/20 backdrop-blur-lg rounded-3xl border border-white/30 shadow-xl lg:shadow-2xl mt-8 sm:mt-0">
                   <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#3A6ABE] mb-3 md:mb-4 leading-tight">
                     Bem-vindo ao <span className="text-[#F79B4B]">Trampolim</span>
@@ -161,7 +161,7 @@ const LoginPage = () => {
                   <p className="text-base md:text-lg text-[#3A6ABE]/90 mb-6 md:mb-8">
                     Acesse o ecossistema de inovação mais dinâmico do Agreste e dê o próximo passo no seu negócio.
                   </p>
-                  
+
                   <div className="space-y-4 md:space-y-6">
                     <div className="flex items-start gap-3 md:gap-4">
                       <div className="flex-shrink-0 mt-1">
@@ -174,7 +174,7 @@ const LoginPage = () => {
                         <p className="text-sm md:text-base text-[#3A6ABE]/80">Acesso aos melhores mentores do mercado</p>
                       </div>
                     </div>
-                    
+
                     <div className="flex items-start gap-3 md:gap-4">
                       <div className="flex-shrink-0 mt-1">
                         <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-[#F79B4B] text-white flex items-center justify-center">
@@ -186,7 +186,7 @@ const LoginPage = () => {
                         <p className="text-sm md:text-base text-[#3A6ABE]/80">Desenvolva habilidades estratégicas</p>
                       </div>
                     </div>
-                    
+
                     <div className="flex items-start gap-3 md:gap-4">
                       <div className="flex-shrink-0 mt-1">
                         <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-[#3A6ABE] text-white flex items-center justify-center">
@@ -212,7 +212,7 @@ const LoginPage = () => {
               <div className="relative p-6 md:p-8 lg:p-10 bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl lg:shadow-2xl overflow-hidden">
                 <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-[#F79B4B]/10 blur-xl z-0 hidden md:block"></div>
                 <div className="absolute -bottom-20 -left-20 w-64 h-64 rounded-full bg-[#3A6ABE]/10 blur-xl z-0 hidden md:block"></div>
-                
+
                 <div className="relative z-10">
                   <div className="text-center mb-6 md:mb-8 lg:mb-10">
                     <div className="mx-auto w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-gradient-to-r from-[#3A6ABE] to-[#F79B4B] flex items-center justify-center shadow-lg mb-4 md:mb-6">
@@ -221,7 +221,7 @@ const LoginPage = () => {
                     <h2 className="text-2xl md:text-3xl font-bold text-[#3A6ABE] mb-1 md:mb-2">Faça seu login</h2>
                     <p className="text-sm md:text-base text-[#3A6ABE]/80">Entre com suas credenciais para acessar a plataforma</p>
                   </div>
-                  
+
                   <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
                     {error && (
                       <motion.div
@@ -255,7 +255,7 @@ const LoginPage = () => {
                         />
                       </div>
                     </div>
-                    
+
                     <div>
                       <label htmlFor="password" className="block text-sm md:text-base font-medium text-[#3A6ABE] mb-1 md:mb-2">
                         Senha
@@ -289,7 +289,7 @@ const LoginPage = () => {
                         </button>
                       </div>
                     </div>
-                    
+
                     {/* Submit Button */}
                     <div className="pt-2 md:pt-4">
                       <motion.button
@@ -310,12 +310,12 @@ const LoginPage = () => {
                       </motion.button>
                     </div>
                   </form>
-                  
+
                   <div className="mt-6 md:mt-8 text-center">
                     <p className="text-sm md:text-base text-[#3A6ABE]/80">
                       Não tem uma conta?{' '}
-                      <a 
-                        href="/cadastro" 
+                      <a
+                        href="/cadastro"
                         className="text-[#3A6ABE] font-semibold hover:text-[#F79B4B] transition-colors"
                       >
                         Cadastre-se
