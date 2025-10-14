@@ -34,7 +34,7 @@ export const BlogSectionADM = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch('http://localhost:8080/api/v1/trampolim/posts');
+      const response = await fetch('http://localhost:7070/api/v1/trampolim/posts');
       if (!response.ok) throw new Error('Falha ao buscar as publicações.');
       const data = await response.json();
       setPosts(data.posts || []);
@@ -85,7 +85,7 @@ export const BlogSectionADM = () => {
     formData.append('coverImage', blogForm.coverImage);
 
     try {
-      const response = await fetch('http://localhost:8080/api/v1/trampolim/posts', {
+      const response = await fetch('http://localhost:7070/api/v1/trampolim/posts', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
         body: formData,
@@ -117,7 +117,7 @@ export const BlogSectionADM = () => {
     }
 
     try {
-      const response = await fetch(`http://localhost:8080/api/v1/trampolim/posts/${postId}`, {
+      const response = await fetch(`http://localhost:7070/api/v1/trampolim/posts/${postId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` },
       });
@@ -134,7 +134,7 @@ export const BlogSectionADM = () => {
   };
 
 
-  const API_BASE_URL = 'http://localhost:8080';
+  const API_BASE_URL = 'http://localhost:7070';
 
   return (
     <div className="space-y-8">
