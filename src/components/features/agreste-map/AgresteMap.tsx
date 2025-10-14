@@ -57,7 +57,7 @@ const AgresteMap: React.FC = () => {
 
   const getResponsiveOptions = () => {
     const isMobile = windowSize.width < 768;
-    const isTablet = windowSize.width >= 768 && windowSize.width < 1024;
+    // const isTablet = windowSize.width >= 768 && windowSize.width < 1024;
 
     return {
       tooltip: {
