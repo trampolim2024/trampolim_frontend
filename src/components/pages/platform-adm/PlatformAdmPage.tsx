@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
 import { AppHeader } from '@/components/shared/platform/app-header/AppHeader';
 import { AppSidebar } from '@/components/shared/platform/app-sidebar/AppSidebar';
-import { FiUser, FiUsers, FiZap, FiFileText, FiBookmark, FiLogOut } from 'react-icons/fi';
+import { FiUsers, FiZap, FiFileText, FiBookmark, FiLogOut } from 'react-icons/fi';
 import { ReviewersSection } from '@/components/shared/platform/reviewer-section/ReviewerSection';
 import { IdeasSection } from '@/components/shared/platform/ideas-section/IdeasSection';
 import { EditaisSection } from '@/components/shared/platform/edital-section/EditalSection';
 import { BlogSectionADM } from '@/components/shared/platform/blog-section/BlogSection[ADM]';
-import { ProfileSection } from '@/components/shared/platform/profile-section/ProfileSection';
+// ProfileSection removed for admin UI
 
-const API_BASE_URL = 'http://localhost:8080';
+const API_BASE_URL = 'http://localhost:7070';
 
 
 interface Edital {
@@ -66,8 +66,7 @@ const PlatformAdminPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
   const [reviewers, setReviewers] = useState<UserData[]>([]);
-  const [projects, setProjects] = useState<Project[]>([]); 
-  const [profileData, setProfileData] = useState<UserData | null>(null);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -90,35 +89,7 @@ const PlatformAdminPage = () => {
     }
   };
   
-  const fetchProfileData = async () => {
-    setIsLoading(true);
-    setError(null);
-    const token = localStorage.getItem('authToken');
-    const userDataFromStorage = localStorage.getItem('user');
-    
-    if (!token || !userDataFromStorage) {
-      setError("Dados do usuário não encontrados. Faça login novamente.");
-      setIsLoading(false);
-      return;
-    }
-    try {
-      const loggedInUser = JSON.parse(userDataFromStorage);
-      const userId = loggedInUser?._id;
-      if (!userId) throw new Error("ID do usuário não encontrado no localStorage.");
 
-      const response = await fetch(`${API_BASE_URL}/api/v1/trampolim/users/${userId}`, { headers: { 'Authorization': `Bearer ${token}` } });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Falha ao carregar os dados do perfil.');
-      }
-      const data = await response.json();
-      setProfileData(data.user);
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const fetchProjects = async () => {
     const token = localStorage.getItem('authToken');
@@ -148,8 +119,6 @@ const PlatformAdminPage = () => {
       setError(null);
       if (activeSection === 'avaliadores') {
         await fetchUsers();
-      } else if (activeSection === 'perfil') {
-        await fetchProfileData();
       } else if (activeSection === 'ideias') {
         await Promise.all([fetchProjects(), fetchUsers()]);
       }
@@ -158,9 +127,33 @@ const PlatformAdminPage = () => {
     loadData();
   }, [activeSection]);
 
-  const user = { name: 'Admin Master', avatar: 'https://randomuser.me/api/portraits/men/75.jpg', role: 'Administrador' };
+  // Determine header user avatar: if logged user is admin, always use public/adm-profile.png
+  const getHeaderUser = (): { name: string; avatar: string; role?: string } => {
+    const storageUser = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
+    let isAdmin = false;
+    let name = 'Administrador';
+    let photoUrl: string | undefined;
+
+    if (storageUser) {
+      try {
+        const parsed = JSON.parse(storageUser);
+        name = parsed.fullName || name;
+        isAdmin = parsed.type?.includes('admin');
+        photoUrl = parsed.photoUrl;
+      } catch {
+        // ignore parse errors and keep defaults
+      }
+    }
+
+    return {
+      name,
+      avatar: isAdmin ? '/adm-profile.png' : (photoUrl ? `${API_BASE_URL}${photoUrl}` : 'https://randomuser.me/api/portraits/men/75.jpg'),
+      role: isAdmin ? 'Administrador' : undefined
+    };
+  };
+
+  const user = getHeaderUser();
   const menuItems = [
-    { id: 'perfil', label: 'Perfil', icon: <FiUser className="w-5 h-5"/> },
     { id: 'avaliadores', label: 'Avaliadores', icon: <FiUsers className="w-5 h-5"/> },
     { id: 'ideias', label: 'Ideias', icon: <FiZap className="w-5 h-5"/> },
     { id: 'editais', label: 'Editais', icon: <FiFileText className="w-5 h-5"/> },
@@ -216,33 +209,6 @@ const PlatformAdminPage = () => {
       
       case 'blog':
         return <BlogSectionADM />;
-      
-      case 'perfil':
-        if (profileData) {
-          const profileProps = {
-            nomeCompleto: profileData.fullName,
-            email: profileData.email,
-            cpf: profileData.cpf,
-            telefone: profileData.phone,
-            genero: profileData.gender,
-            grauEscolaridade: profileData.educationLevel,
-            areaAtuacao: profileData.fieldOfActivity,
-            linkedin: profileData.linkedin || "",
-            fotoPerfil: profileData.photoUrl ? `${API_BASE_URL}${profileData.photoUrl}` : "",
-            cep: profileData.zipCode,
-            estado: profileData.state,
-            cidade: profileData.city,
-            bairro: profileData.neighborhood,
-            endereco: profileData.address,
-            miniCurriculo: profileData.miniResume,
-            nomeEmpresa: profileData.entrepreneur?.companyName || "",
-            siteEmpresa: profileData.entrepreneur?.companyWebsite || "",
-            descricaoNegocio: profileData.entrepreneur?.businessDescription || "",
-            role: profileData.type.map(t => t.charAt(0).toUpperCase() + t.slice(1)).join(', ')
-          };
-          return <ProfileSection user={profileProps} />;
-        }
-        return <div>Não foi possível carregar os dados do perfil.</div>;
 
       default:
         return null;
