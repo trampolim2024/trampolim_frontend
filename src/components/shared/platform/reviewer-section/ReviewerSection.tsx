@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dialog";
 
 // URL base da API para construir o caminho da imagem
-const API_BASE_URL = 'http://localhost:8080';
+const API_BASE_URL = 'http://localhost:7070';
 
 // --- INTERFACE CORRESPONDENDO AO MODELO DO BACK-END ---
 interface Reviewer {
