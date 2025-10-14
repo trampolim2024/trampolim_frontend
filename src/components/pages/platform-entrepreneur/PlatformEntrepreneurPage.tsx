@@ -10,7 +10,7 @@ import SubmitInnovationPage from '../submition-innovation/SubmitInnovationPage';
 import EditalPage from '../edital-page/EditalPage';
 import { useNavigate } from 'react-router-dom';
 
-const API_BASE_URL = 'http://localhost:8080';
+const API_BASE_URL = 'http://localhost:7070';
 
 interface UserData {
   _id: string;
@@ -38,6 +38,7 @@ interface UserData {
 }
 
 const PlatformEntrepreneur = () => {
+  const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('cursos');
   const [userData, setUserData] = useState<UserData | null>(null);
@@ -52,8 +53,7 @@ const PlatformEntrepreneur = () => {
       if (!token || !userFromStorage) {
         setError("Sessão inválida. Por favor, faça login novamente.");
         setIsLoading(false);
-        const navigate = useNavigate();
-        navigate('/login');
+        navigate('/login'); // Usando hook useNavigate corretamente
         return;
       }
 
@@ -72,7 +72,11 @@ const PlatformEntrepreneur = () => {
         }
         
         const data = await response.json();
-        setUserData(data.user);
+
+        // --- A CORREÇÃO ESTÁ AQUI ---
+        // Acessamos o objeto do usuário que está dentro da propriedade 'data'
+        setUserData(data.data); 
+
       } catch (err: any) {
         setError(err.message);
       } finally {
@@ -81,7 +85,7 @@ const PlatformEntrepreneur = () => {
     };
     
     fetchUserData();
-  }, []);
+  }, [navigate]);
 
   const coursesInProgress = [
     { id: 1, title: 'Marketing Digital para Empreendedores', progress: 65, thumbnail: 'https://img.freepik.com/free-psd/digital-marketing-social-media-post-template_505751-2766.jpg', lastWatched: '15 minutos atrás', modules: '12 módulos', duration: '8 horas' },
@@ -112,7 +116,7 @@ const PlatformEntrepreneur = () => {
       return <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg"><strong>Erro:</strong> {error}</div>;
     }
     if (!userData && activeSection === 'perfil') {
-        return <div className="text-center p-10 text-gray-600">Não foi possível carregar os dados do perfil.</div>;
+      return <div className="text-center p-10 text-gray-600">Não foi possível carregar os dados do perfil.</div>;
     }
 
     switch (activeSection) {
@@ -135,15 +139,15 @@ const PlatformEntrepreneur = () => {
         );
       case 'perfil':
         const profileProps = {
-            nomeCompleto: userData!.fullName, email: userData!.email, cpf: userData!.cpf,
-            telefone: userData!.phone, genero: userData!.gender, grauEscolaridade: userData!.educationLevel,
-            areaAtuacao: userData!.fieldOfActivity, linkedin: userData!.linkedin || "",
-            fotoPerfil: userData!.photoUrl ? `${API_BASE_URL}${userData!.photoUrl}` : "",
-            cep: userData!.zipCode, estado: userData!.state, cidade: userData!.city,
-            bairro: userData!.neighborhood, endereco: userData!.address, miniCurriculo: userData!.miniResume,
-            nomeEmpresa: userData!.entrepreneur?.companyName || "", siteEmpresa: userData!.entrepreneur?.companyWebsite || "",
-            descricaoNegocio: userData!.entrepreneur?.businessDescription || "",
-            role: userData!.type.map(t => t.charAt(0).toUpperCase() + t.slice(1)).join(', ')
+          nomeCompleto: userData!.fullName, email: userData!.email, cpf: userData!.cpf,
+          telefone: userData!.phone, genero: userData!.gender, grauEscolaridade: userData!.educationLevel,
+          areaAtuacao: userData!.fieldOfActivity, linkedin: userData!.linkedin || "",
+          fotoPerfil: userData!.photoUrl ? `${API_BASE_URL}${userData!.photoUrl}` : "",
+          cep: userData!.zipCode, estado: userData!.state, cidade: userData!.city,
+          bairro: userData!.neighborhood, endereco: userData!.address, miniCurriculo: userData!.miniResume,
+          nomeEmpresa: userData!.entrepreneur?.companyName || "", siteEmpresa: userData!.entrepreneur?.companyWebsite || "",
+          descricaoNegocio: userData!.entrepreneur?.businessDescription || "",
+          role: userData!.type.map(t => t.charAt(0).toUpperCase() + t.slice(1)).join(', ')
         };
         return <ProfileSection user={profileProps} />;
       case 'ideia':
@@ -160,8 +164,8 @@ const PlatformEntrepreneur = () => {
   return (
     <div className="min-h-screen bg-[#F5F5F5]">
       <AppHeader
-        user={{ 
-          name: userData?.fullName || 'Carregando...', 
+        user={{
+          name: userData?.fullName || 'Carregando...',
           avatar: userData?.photoUrl ? `${API_BASE_URL}${userData.photoUrl}` : ''
         }}
         isMenuOpen={isMenuOpen}
