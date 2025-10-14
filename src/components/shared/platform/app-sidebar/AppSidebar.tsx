@@ -30,10 +30,21 @@ export const AppSidebar = ({
   const navigate = useNavigate();
 
   const completeMenuItems = [
-    { id: 'perfil', label: 'Meu Perfil', icon: <FiUser className="w-5 h-5" /> },
-    ...menuItems.filter(item => item.id !== 'perfil')
   ];
 
+  try {
+    const stored = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
+    const parsed = stored ? JSON.parse(stored) : null;
+    const isAdmin = parsed?.type?.includes && parsed.type.includes('admin');
+    if (!isAdmin) {
+      completeMenuItems.push({ id: 'perfil', label: 'Meu Perfil', icon: <FiUser className="w-5 h-5" /> });
+    }
+  } catch {
+    completeMenuItems.push({ id: 'perfil', label: 'Meu Perfil', icon: <FiUser className="w-5 h-5" /> });
+  }
+
+  completeMenuItems.push(...menuItems.filter(item => item.id !== 'perfil'));
+  
   const handleLogout = () => {
     localStorage.removeItem('authToken');
     localStorage.removeItem('user');
