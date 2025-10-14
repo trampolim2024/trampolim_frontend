@@ -12,7 +12,7 @@ interface Edital {
 }
 
 // A URL da sua API
-const API_BASE_URL = 'http://localhost:8080';
+const API_BASE_URL = 'http://localhost:7070';
 
 export default function SubmitInnovationPage() {
   const [activeEdital, setActiveEdital] = useState<Edital | null>(null);
