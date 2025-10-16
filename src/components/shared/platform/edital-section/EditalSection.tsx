@@ -58,6 +58,11 @@ export const EditaisSection = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [deleteConfirmDialog, setDeleteConfirmDialog] = useState({
+    isOpen: false,
+    editalId: null as string | null,
+    editalName: ''
+  });
 
   const fetchData = async () => {
     const token = localStorage.getItem('authToken');
@@ -212,6 +217,31 @@ export const EditaisSection = () => {
       setError(err.message);
     } finally {
       setIsModalLoading(false);
+    }
+  };
+
+  const handleDeleteEdital = async (editalId: string) => {
+    setIsLoading(true);
+    const token = localStorage.getItem('authToken');
+    
+    try {
+      const response = await fetch(
+        `http://localhost:7070/api/v1/trampolim/editals/${editalId}`,
+        {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` }
+        }
+      );
+      
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Falha ao encerrar edital.');
+      
+      setSuccess('Edital encerrado com sucesso!');
+      fetchData();
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -388,7 +418,18 @@ export const EditaisSection = () => {
               </div>
               <div className="flex space-x-2">
                 <Button variant="outline" size="sm" className="border-[#3A6ABE] text-[#3A6ABE] hover:bg-[#3A6ABE]/10">Editar</Button>
-                <Button variant="outline" size="sm" className="border-[#F79B4B] text-[#F79B4B] hover:bg-[#F79B4B]/10">Encerrar</Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="border-[#F79B4B] text-[#F79B4B] hover:bg-[#F79B4B]/10"
+                  onClick={() => setDeleteConfirmDialog({
+                    isOpen: true,
+                    editalId: edital._id,
+                    editalName: edital.name
+                  })}
+                >
+                  Encerrar
+                </Button>
               </div>
             </div>
           </Card>
@@ -396,6 +437,49 @@ export const EditaisSection = () => {
           <p className="text-[#3A6ABE]/80">Nenhum edital ativo no momento.</p>
         )}
       </div>
+
+      <Dialog open={deleteConfirmDialog.isOpen} onOpenChange={(isOpen) => {
+        if (!isOpen) setDeleteConfirmDialog({ isOpen: false, editalId: null, editalName: '' });
+      }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-[#F79B4B]">Encerrar Edital</DialogTitle>
+            <DialogDescription>
+              Tem certeza que deseja encerrar este edital? Esta ação é irreversível.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="p-4 bg-red-50 rounded-lg border border-red-200">
+            <p className="text-sm font-medium text-red-800">
+              Edital: <span className="font-bold">{deleteConfirmDialog.editalName}</span>
+            </p>
+          </div>
+          
+          <DialogFooter>
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => setDeleteConfirmDialog({ isOpen: false, editalId: null, editalName: '' })}
+            >
+              Cancelar
+            </Button>
+            <Button 
+              type="button" 
+              variant="destructive"
+              onClick={() => {
+                if (deleteConfirmDialog.editalId) {
+                  handleDeleteEdital(deleteConfirmDialog.editalId);
+                  setDeleteConfirmDialog({ isOpen: false, editalId: null, editalName: '' });
+                }
+              }}
+              disabled={isLoading}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {isLoading ? 'Encerrando...' : 'Encerrar'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
