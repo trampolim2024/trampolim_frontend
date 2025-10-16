@@ -112,17 +112,218 @@ const SignUpPage = () => {
     }
   };
 
+  // === HELPER FUNCTIONS ===
+
+  /**
+   * Valida um email com regex básico
+   */
+  const isValidEmail = (email: string): boolean => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+  };
+
+  /**
+   * Valida um CPF com verificadores de dígito
+   */
+  const isValidCPF = (cpf: string): boolean => {
+    // CPF com todos os dígitos iguais é inválido
+    if (/^(\d)\1{10}$/.test(cpf)) {
+      return false;
+    }
+    
+    // Validar primeiro dígito verificador
+    let sum = 0;
+    let remainder;
+    for (let i = 1; i <= 9; i++) {
+      sum += parseInt(cpf.substring(i - 1, i), 10) * (11 - i);
+    }
+    remainder = (sum * 10) % 11;
+    if (remainder === 10 || remainder === 11) {
+      remainder = 0;
+    }
+    if (remainder !== parseInt(cpf.substring(9, 10), 10)) {
+      return false;
+    }
+
+    // Validar segundo dígito verificador
+    sum = 0;
+    for (let i = 1; i <= 10; i++) {
+      sum += parseInt(cpf.substring(i - 1, i), 10) * (12 - i);
+    }
+    remainder = (sum * 10) % 11;
+    if (remainder === 10 || remainder === 11) {
+      remainder = 0;
+    }
+    if (remainder !== parseInt(cpf.substring(10, 11), 10)) {
+      return false;
+    }
+
+    return true;
+  };
+
+  /**
+   * Valida TODOS os dados do formulário
+   */
+  const validateFormData = (formData: any, userType: string | null): { isValid: boolean; errors: string[] } => {
+    const errors: string[] = [];
+
+    // Validar tipo de usuário
+    if (!userType) {
+      errors.push('Selecione um tipo de cadastro (Empreendedor ou Avaliador)');
+    }
+
+    // --- VALIDAÇÕES DE CAMPOS PESSOAIS ---
+
+    // Full Name
+    if (!formData.fullName?.trim()) {
+      errors.push('Nome completo é obrigatório');
+    }
+
+    // Email
+    if (!formData.email?.trim()) {
+      errors.push('E-mail é obrigatório');
+    } else if (!isValidEmail(formData.email)) {
+      errors.push('E-mail inválido');
+    }
+
+    // CPF - ⭐ CRÍTICO: Deve ter exatamente 11 dígitos
+    if (!formData.cpf?.trim()) {
+      errors.push('CPF é obrigatório');
+    } else {
+      const cleanCPF = formData.cpf.replace(/\D/g, '');
+      if (cleanCPF.length !== 11) {
+        errors.push(`CPF deve ter 11 dígitos (você tem ${cleanCPF.length})`);
+      } else if (!isValidCPF(cleanCPF)) {
+        errors.push('CPF inválido');
+      }
+    }
+
+    // Phone - ⭐ CRÍTICO: Deve ter 10 ou 11 dígitos
+    if (!formData.phone?.trim()) {
+      errors.push('Telefone é obrigatório');
+    } else {
+      const cleanPhone = formData.phone.replace(/\D/g, '');
+      if (cleanPhone.length < 10 || cleanPhone.length > 11) {
+        errors.push(`Telefone deve ter 10 ou 11 dígitos (você tem ${cleanPhone.length})`);
+      }
+    }
+
+    // CEP - ⭐ CRÍTICO: Deve ter exatamente 8 dígitos
+    if (!formData.zipCode?.trim()) {
+      errors.push('CEP é obrigatório');
+    } else {
+      const cleanZipCode = formData.zipCode.replace(/\D/g, '');
+      if (cleanZipCode.length !== 8) {
+        errors.push(`CEP deve ter 8 dígitos (você tem ${cleanZipCode.length})`);
+      }
+    }
+
+    // State
+    if (!formData.state?.trim()) {
+      errors.push('Estado é obrigatório');
+    }
+
+    // City
+    if (!formData.city?.trim()) {
+      errors.push('Cidade é obrigatória');
+    }
+
+    // Neighborhood
+    if (!formData.neighborhood?.trim()) {
+      errors.push('Bairro é obrigatório');
+    }
+
+    // Address
+    if (!formData.address?.trim()) {
+      errors.push('Endereço completo é obrigatório');
+    }
+
+    // Gender
+    if (!formData.gender?.trim()) {
+      errors.push('Gênero é obrigatório');
+    }
+
+    // Education Level
+    if (!formData.educationLevel?.trim()) {
+      errors.push('Grau de escolaridade é obrigatório');
+    }
+
+    // Field of Activity
+    if (!formData.fieldOfActivity?.trim()) {
+      errors.push('Área de atuação é obrigatória');
+    }
+
+    // Mini Resume
+    if (!formData.miniResume?.trim()) {
+      errors.push(`${userType === 'entrepreneur' ? 'Sobre o Empreendedor' : 'Mini Currículo'} é obrigatório`);
+    }
+
+    // --- VALIDAÇÃO DE FOTO ---
+    if (!formData.photoUrl) {
+      errors.push('Foto de perfil é obrigatória');
+    } else {
+      // Validar tipo de arquivo
+      if (!formData.photoUrl.type.startsWith('image/')) {
+        errors.push('Arquivo deve ser uma imagem (JPEG, PNG, etc)');
+      }
+      // Validar tamanho (5MB = 5242880 bytes)
+      const MAX_FILE_SIZE = 5 * 1024 * 1024;
+      if (formData.photoUrl.size > MAX_FILE_SIZE) {
+        const sizeMB = (formData.photoUrl.size / (1024 * 1024)).toFixed(1);
+        errors.push(`Foto é muito grande: ${sizeMB}MB (máximo 5MB)`);
+      }
+    }
+
+    // --- VALIDAÇÕES DE CREDENCIAIS ---
+
+    // Password - ⭐ CRÍTICO: Mínimo 6 caracteres
+    if (!formData.password) {
+      errors.push('Senha é obrigatória');
+    } else if (formData.password.length < 6) {
+      errors.push(`Senha deve ter no mínimo 6 caracteres (você tem ${formData.password.length})`);
+    }
+
+    // Confirm Password
+    if (!formData.confirmPassword) {
+      errors.push('Confirmação de senha é obrigatória');
+    } else if (formData.password !== formData.confirmPassword) {
+      errors.push('As senhas não coincidem');
+    }
+
+    // --- VALIDAÇÕES ESPECÍFICAS POR TIPO ---
+
+    if (userType === 'entrepreneur') {
+      if (!formData.companyName?.trim()) {
+        errors.push('Nome da empresa/startup é obrigatório');
+      }
+      if (!formData.businessDescription?.trim()) {
+        errors.push('Descrição do negócio é obrigatória');
+      }
+    } else if (userType === 'reviewer') {
+      if (!formData.incubationDescription?.trim()) {
+        errors.push('Descrição de experiência com incubação é obrigatória');
+      }
+      if (formData.specializationAreas.length === 0) {
+        errors.push('Selecione pelo menos uma área de especialização');
+      }
+    }
+
+    return {
+      isValid: errors.length === 0,
+      errors
+    };
+  };
+
  const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
   setError(null);
   setSuccess(null);
 
-  if (formData.password !== formData.confirmPassword) {
-    setError("As senhas não coincidem.");
-    return;
-  }
-  if (!formData.photoUrl) {
-    setError("A foto de perfil é obrigatória.");
+  // ✅ VALIDAR ANTES DE ENVIAR
+  const validation = validateFormData(formData, userType);
+  if (!validation.isValid) {
+    setError(validation.errors.join('\n'));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     return;
   }
 
@@ -376,7 +577,16 @@ const SignUpPage = () => {
               >
                 <div className="p-6 md:p-8 lg:p-10">
                   {success && <div className="p-4 mb-6 text-sm text-green-700 bg-green-100 rounded-lg text-center">{success}</div>}
-                  {error && <div className="p-4 mb-6 text-sm text-red-700 bg-red-100 rounded-lg text-center">{error}</div>}
+                  {error && (
+                    <div className="p-4 mb-6 text-sm text-red-700 bg-red-100 rounded-lg">
+                      <div className="font-bold mb-2">Erros encontrados:</div>
+                      <ul className="list-disc list-inside space-y-1">
+                        {error.split('\n').map((err, idx) => (
+                          <li key={idx}>{err}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                   <div className="flex flex-col md:flex-row gap-8">
                     <motion.div
                       className="w-full md:w-1/3 lg:w-1/4 flex flex-col items-center"
