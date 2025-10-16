@@ -46,45 +46,25 @@ const PlatformEntrepreneur = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      const token = localStorage.getItem('authToken');
-      const userFromStorage = localStorage.getItem('user');
+    // Carregar dados do usuário do localStorage (já vem do login)
+    const userFromStorage = localStorage.getItem('user');
+    const token = localStorage.getItem('authToken');
 
-      if (!token || !userFromStorage) {
-        setError("Sessão inválida. Por favor, faça login novamente.");
-        setIsLoading(false);
-        navigate('/login'); // Usando hook useNavigate corretamente
-        return;
-      }
+    if (!token || !userFromStorage) {
+      setError("Sessão inválida. Por favor, faça login novamente.");
+      setIsLoading(false);
+      navigate('/login');
+      return;
+    }
 
-      try {
-        const loggedInUser = JSON.parse(userFromStorage);
-        const userId = loggedInUser?._id;
-        if (!userId) throw new Error("ID do usuário não encontrado.");
-
-        const response = await fetch(`${API_BASE_URL}/api/v1/trampolim/users/${userId}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || "Não foi possível carregar seus dados.");
-        }
-        
-        const data = await response.json();
-
-        // --- A CORREÇÃO ESTÁ AQUI ---
-        // Acessamos o objeto do usuário que está dentro da propriedade 'data'
-        setUserData(data.data); 
-
-      } catch (err: any) {
-        setError(err.message);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    fetchUserData();
+    try {
+      const loggedInUser = JSON.parse(userFromStorage);
+      setUserData(loggedInUser);
+      setIsLoading(false);
+    } catch (err) {
+      console.error('Erro ao parsear usuário do localStorage:', err);
+      setIsLoading(false);
+    }
   }, [navigate]);
 
   const coursesInProgress = [

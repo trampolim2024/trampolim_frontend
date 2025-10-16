@@ -68,6 +68,19 @@ const PlatformReviewerPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    // Carregar dados do usuário do localStorage (já vem do login)
+    const userFromStorage = localStorage.getItem('user');
+    if (userFromStorage) {
+      try {
+        const loggedInUser = JSON.parse(userFromStorage);
+        setUserData(loggedInUser);
+      } catch (err) {
+        console.error('Erro ao parsear usuário do localStorage:', err);
+      }
+    }
+  }, []);
+
   const fetchData = async () => {
     setIsLoading(true);
     setError(null);
@@ -86,18 +99,9 @@ const PlatformReviewerPage = () => {
       const userId = loggedInUser?._id;
       if (!userId) throw new Error("ID do usuário não encontrado.");
 
-      const [profileResponse, evaluationsResponse] = await Promise.all([
-        fetch(`${API_BASE_URL}/api/v1/trampolim/users/${userId}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        }),
-        fetch(`${API_BASE_URL}/api/v1/trampolim/evaluations`, {
+      const evaluationsResponse = await fetch(`${API_BASE_URL}/api/v1/trampolim/evaluations`, {
             headers: { 'Authorization': `Bearer ${token}` }
-        })
-      ]);
-
-      if (!profileResponse.ok) throw new Error('Falha ao carregar dados do perfil.');
-      const profileData = await profileResponse.json();
-      setUserData(profileData.user);
+        });
 
       if (!evaluationsResponse.ok) throw new Error('Falha ao carregar ideias designadas.');
       const evaluationsData = await evaluationsResponse.json();
