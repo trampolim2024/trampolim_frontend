@@ -38,6 +38,9 @@ export const EditaisSection = () => {
     name: '',
     submissionStartDate: '',
     submissionEndDate: '',
+    sobre: '',
+    regulamento: '',
+    beneficios: '',
     evaluationSystem: '',
     pdfFile: null as File | null
   });
@@ -85,7 +88,7 @@ export const EditaisSection = () => {
     fetchData();
   }, []);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target;
     setEditalForm(prev => ({ ...prev, [id]: value }));
   };
@@ -102,10 +105,30 @@ export const EditaisSection = () => {
     setSuccess(null);
     setIsLoading(true);
 
-    const { name, submissionStartDate, submissionEndDate, evaluationSystem, pdfFile } = editalForm;
+    const { name, submissionStartDate, submissionEndDate, sobre, regulamento, beneficios, evaluationSystem, pdfFile } = editalForm;
 
-    if (!name || !submissionStartDate || !submissionEndDate || !evaluationSystem || !pdfFile) {
+    // Validações obrigatórias
+    if (!name || !submissionStartDate || !submissionEndDate || !sobre || !regulamento || !beneficios || !evaluationSystem || !pdfFile) {
       setError("Todos os campos do edital são obrigatórios.");
+      setIsLoading(false);
+      return;
+    }
+
+    // Validações de tamanho
+    if (sobre.length < 10 || sobre.length > 1000) {
+      setError("O campo 'Sobre' deve ter entre 10 e 1000 caracteres.");
+      setIsLoading(false);
+      return;
+    }
+
+    if (regulamento.length < 10 || regulamento.length > 2000) {
+      setError("O campo 'Regulamento' deve ter entre 10 e 2000 caracteres.");
+      setIsLoading(false);
+      return;
+    }
+
+    if (beneficios.length < 10 || beneficios.length > 1500) {
+      setError("O campo 'Benefícios' deve ter entre 10 e 1500 caracteres.");
       setIsLoading(false);
       return;
     }
@@ -121,6 +144,9 @@ export const EditaisSection = () => {
     formData.append('name', name);
     formData.append('submissionStartDate', submissionStartDate);
     formData.append('submissionEndDate', submissionEndDate);
+    formData.append('sobre', sobre);
+    formData.append('regulamento', regulamento);
+    formData.append('beneficios', beneficios);
     formData.append('evaluationSystem', evaluationSystem);
     formData.append('pdfFile', pdfFile);
 
@@ -134,7 +160,7 @@ export const EditaisSection = () => {
       if (!response.ok) throw new Error(data.message || 'Falha ao criar o edital.');
 
       setSuccess('Edital publicado com sucesso!');
-      setEditalForm({ name: '', submissionStartDate: '', submissionEndDate: '', evaluationSystem: '', pdfFile: null });
+      setEditalForm({ name: '', submissionStartDate: '', submissionEndDate: '', sobre: '', regulamento: '', beneficios: '', evaluationSystem: '', pdfFile: null });
       fetchData();
     } catch (err: any) {
       setError(err.message);
@@ -206,6 +232,51 @@ export const EditaisSection = () => {
           <div>
             <Label htmlFor="name" className="text-[#3A6ABE]">Nome do Edital</Label>
             <Input id="name" placeholder="Ex: Edital de Inovação 2025" value={editalForm.name} onChange={handleInputChange} />
+          </div>
+
+          <div>
+            <Label htmlFor="sobre" className="text-[#3A6ABE]">Sobre <span className="text-red-500">*</span></Label>
+            <Textarea 
+              id="sobre" 
+              placeholder="Ex: Este edital tem como objetivo selecionar startups inovadoras..." 
+              value={editalForm.sobre} 
+              onChange={handleInputChange}
+              className="min-h-[100px]"
+            />
+            <div className="flex justify-between items-center mt-1">
+              <p className="text-xs text-[#3A6ABE]/70">Texto resumido sobre o edital que está sendo criado</p>
+              <span className="text-xs text-[#3A6ABE]/60">{editalForm.sobre.length}/1000</span>
+            </div>
+          </div>
+
+          <div>
+            <Label htmlFor="regulamento" className="text-[#3A6ABE]">Regulamento <span className="text-red-500">*</span></Label>
+            <Textarea 
+              id="regulamento" 
+              placeholder="Ex: Critérios de seleção: inovação (30%), viabilidade (40%)..." 
+              value={editalForm.regulamento} 
+              onChange={handleInputChange}
+              className="min-h-[120px]"
+            />
+            <div className="flex justify-between items-center mt-1">
+              <p className="text-xs text-[#3A6ABE]/70">Conjunto de regras básicas sobre o processo seletivo</p>
+              <span className="text-xs text-[#3A6ABE]/60">{editalForm.regulamento.length}/2000</span>
+            </div>
+          </div>
+
+          <div>
+            <Label htmlFor="beneficios" className="text-[#3A6ABE]">Benefícios <span className="text-red-500">*</span></Label>
+            <Textarea 
+              id="beneficios" 
+              placeholder="Ex: Aporte de R$100k, mentoria, acesso a rede de investidores..." 
+              value={editalForm.beneficios} 
+              onChange={handleInputChange}
+              className="min-h-[100px]"
+            />
+            <div className="flex justify-between items-center mt-1">
+              <p className="text-xs text-[#3A6ABE]/70">O que o usuário vai ganhar ao ser aprovado</p>
+              <span className="text-xs text-[#3A6ABE]/60">{editalForm.beneficios.length}/1500</span>
+            </div>
           </div>
           
           <div>
