@@ -97,6 +97,7 @@ const PlatformReviewerPage = () => {
 
       if (!profileResponse.ok) throw new Error('Falha ao carregar dados do perfil.');
       const profileData = await profileResponse.json();
+      console.log('Profile data carregado:', profileData);
       setUserData(profileData.user);
 
       if (!evaluationsResponse.ok) throw new Error('Falha ao carregar ideias designadas.');
@@ -117,6 +118,12 @@ const PlatformReviewerPage = () => {
   useEffect(() => {
     fetchData();
   }, []);
+
+  useEffect(() => {
+    console.log('userData atualizado:', userData);
+    console.log('userData?.fullName:', userData?.fullName);
+    console.log('userData?.photoUrl:', userData?.photoUrl);
+  }, [userData]);
 
   const menuItems = [
     { id: 'perfil', label: 'Meu Perfil', icon: <FiUser className="w-5 h-5" /> },
