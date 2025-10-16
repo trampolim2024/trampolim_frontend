@@ -72,7 +72,6 @@ const PlatformEntrepreneur = () => {
         }
         
         const data = await response.json();
-        console.log('Profile data carregado:', data);
 
         // --- A CORREÇÃO ESTÁ AQUI ---
         // Acessamos o objeto do usuário que está dentro da propriedade 'data'
@@ -87,12 +86,6 @@ const PlatformEntrepreneur = () => {
     
     fetchUserData();
   }, [navigate]);
-
-  useEffect(() => {
-    console.log('userData atualizado:', userData);
-    console.log('userData?.fullName:', userData?.fullName);
-    console.log('userData?.photoUrl:', userData?.photoUrl);
-  }, [userData]);
 
   const coursesInProgress = [
     { id: 1, title: 'Marketing Digital para Empreendedores', progress: 65, thumbnail: 'https://img.freepik.com/free-psd/digital-marketing-social-media-post-template_505751-2766.jpg', lastWatched: '15 minutos atrás', modules: '12 módulos', duration: '8 horas' },
