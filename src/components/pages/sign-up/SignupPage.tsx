@@ -701,7 +701,18 @@ const SignUpPage = () => {
                         <label htmlFor="educationLevel" className="text-[#3A6ABE] font-medium">Grau de Escolaridade</label>
                         <div className="flex items-center gap-2 p-2 border border-[#3A6ABE]/30 rounded-lg focus-within:border-[#3A6ABE] focus-within:ring-2 focus-within:ring-[#3A6ABE]/20">
                           <FaGraduationCap className="text-[#3A6ABE]" />
-                          <input type="text" id="educationLevel" name="educationLevel" value={formData.educationLevel} onChange={handleChange} className="w-full outline-none bg-transparent" required />
+                          <select id="educationLevel" name="educationLevel" value={formData.educationLevel} onChange={handleChange} className="w-full outline-none bg-transparent" required>
+                            <option value="">Selecione</option>
+                            <option value="Ensino Fundamental Incompleto">Ensino Fundamental Incompleto</option>
+                            <option value="Ensino Fundamental Completo">Ensino Fundamental Completo</option>
+                            <option value="Ensino Médio Incompleto">Ensino Médio Incompleto</option>
+                            <option value="Ensino Médio Completo">Ensino Médio Completo</option>
+                            <option value="Ensino Superior Incompleto">Ensino Superior Incompleto</option>
+                            <option value="Ensino Superior Completo">Ensino Superior Completo</option>
+                            <option value="Pós-Graduação">Pós-Graduação</option>
+                            <option value="Mestrado">Mestrado</option>
+                            <option value="Doutorado">Doutorado</option>
+                          </select>
                         </div>
                       </div>
 
