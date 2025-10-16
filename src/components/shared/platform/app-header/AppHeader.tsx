@@ -62,7 +62,7 @@ export const AppHeader = ({ user, isMenuOpen, setIsMenuOpen }: AppHeaderProps) =
             </div>
             
             <Avatar className="w-9 h-9 sm:w-10 sm:h-10 border-2 border-[#3A6ABE]/30 hover:border-[#F79B4B] transition-colors cursor-pointer">
-              <AvatarImage src={user.avatar} alt={user.name} />
+              {user.avatar && <AvatarImage src={user.avatar} alt={user.name} />}
               <AvatarFallback className="bg-[#3A6ABE]/10 text-[#3A6ABE] font-medium">
                 {user.name ? user.name.charAt(0).toUpperCase() : '?'}
               </AvatarFallback>
