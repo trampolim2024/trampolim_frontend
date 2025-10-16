@@ -1,17 +1,17 @@
-import { FiCalendar, FiClock, FiFileText, FiAward, FiAlertCircle, FiCpu } from "react-icons/fi";
+import { FiCalendar, FiFileText, FiAward, FiAlertCircle, FiCpu } from "react-icons/fi";
 import { Button } from "@/components/ui/button";
 
 interface EditalDetailsPageProps {
   hasActiveEdital: boolean;
   edital?: {
-    id: string;
+    _id: string;
     name: string;
-    description: string;
-    startDate: string;
-    endDate: string;
-    submissionDate: string;
-    rules: string[];
-    benefits: string[];
+    submissionStartDate: string;
+    submissionEndDate: string;
+    pdfUrl: string;
+    sobre: string;
+    regulamento: string;
+    beneficios: string;
     aiSummary?: string;
   };
 }
@@ -51,15 +51,15 @@ export const EditalDetailsPage = ({ hasActiveEdital, edital }: EditalDetailsPage
           <div className="flex flex-wrap justify-center gap-4 mt-6">
             <div className="flex items-center bg-white/80 backdrop-blur-sm rounded-full px-4 py-2 border border-[#3A6ABE]/20">
               <FiCalendar className="text-[#F79B4B] mr-2" />
-              <span className="text-[#3A6ABE] font-medium">Início: {edital.startDate}</span>
+              <span className="text-[#3A6ABE] font-medium">
+                Início: {new Date(edital.submissionStartDate).toLocaleDateString('pt-BR')}
+              </span>
             </div>
             <div className="flex items-center bg-white/80 backdrop-blur-sm rounded-full px-4 py-2 border border-[#3A6ABE]/20">
               <FiCalendar className="text-[#F79B4B] mr-2" />
-              <span className="text-[#3A6ABE] font-medium">Término: {edital.endDate}</span>
-            </div>
-            <div className="flex items-center bg-white/80 backdrop-blur-sm rounded-full px-4 py-2 border border-[#3A6ABE]/20">
-              <FiClock className="text-[#F79B4B] mr-2" />
-              <span className="text-[#3A6ABE] font-medium">Publicado em: {edital.submissionDate}</span>
+              <span className="text-[#3A6ABE] font-medium">
+                Término: {new Date(edital.submissionEndDate).toLocaleDateString('pt-BR')}
+              </span>
             </div>
           </div>
         </div>
@@ -74,8 +74,8 @@ export const EditalDetailsPage = ({ hasActiveEdital, edital }: EditalDetailsPage
                 <FiFileText className="mr-2 text-[#F79B4B]" />
                 Sobre o Edital
               </h2>
-              <p className="text-[#3A6ABE]/90 leading-relaxed">
-                {edital.description}
+              <p className="text-[#3A6ABE]/90 leading-relaxed whitespace-pre-wrap">
+                {edital.sobre}
               </p>
             </div>
 
@@ -85,16 +85,16 @@ export const EditalDetailsPage = ({ hasActiveEdital, edital }: EditalDetailsPage
                 <FiFileText className="mr-2 text-[#F79B4B]" />
                 Regulamento
               </h2>
-              <ul className="space-y-3 text-[#3A6ABE]/90">
-                {edital.rules.map((rule, index) => (
-                  <li key={index} className="flex items-start">
-                    <span className="bg-[#3A6ABE]/10 text-[#3A6ABE] rounded-full w-6 h-6 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">
+              <div className="space-y-3 text-[#3A6ABE]/90">
+                {edital.regulamento.split('\n').filter((line: string) => line.trim()).map((rule: string, index: number) => (
+                  <div key={index} className="flex items-start">
+                    <span className="bg-[#3A6ABE]/10 text-[#3A6ABE] rounded-full w-6 h-6 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0 text-xs font-medium">
                       {index + 1}
                     </span>
-                    <span>{rule}</span>
-                  </li>
+                    <span>{rule.trim()}</span>
+                  </div>
                 ))}
-              </ul>
+              </div>
             </div>
 
             {/* Benefícios */}
@@ -104,13 +104,13 @@ export const EditalDetailsPage = ({ hasActiveEdital, edital }: EditalDetailsPage
                 Benefícios para Projetos Selecionados
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {edital.benefits.map((benefit, index) => (
+                {edital.beneficios.split('\n').filter((line: string) => line.trim()).map((benefit: string, index: number) => (
                   <div key={index} className="bg-[#F5F5F5] rounded-lg p-4 border border-[#3A6ABE]/20">
-                    <div className="flex items-center">
+                    <div className="flex items-start">
                       <div className="bg-[#3A6ABE]/10 text-[#3A6ABE] rounded-full w-8 h-8 flex items-center justify-center mr-3 flex-shrink-0">
                         <FiAward className="text-[#F79B4B]" />
                       </div>
-                      <span className="font-medium text-[#3A6ABE]">{benefit}</span>
+                      <span className="font-medium text-[#3A6ABE]">{benefit.trim()}</span>
                     </div>
                   </div>
                 ))}
@@ -170,12 +170,12 @@ export const EditalDetailsPage = ({ hasActiveEdital, edital }: EditalDetailsPage
                 <div className="flex items-center justify-between bg-white/10 rounded-lg p-3">
                   <div>
                     <p className="text-sm">Início</p>
-                    <p className="font-medium">{edital.startDate}</p>
+                    <p className="font-medium">{new Date(edital.submissionStartDate).toLocaleDateString('pt-BR')}</p>
                   </div>
                   <div className="h-px bg-white/30 flex-1 mx-4"></div>
                   <div className="text-right">
                     <p className="text-sm">Término</p>
-                    <p className="font-medium">{edital.endDate}</p>
+                    <p className="font-medium">{new Date(edital.submissionEndDate).toLocaleDateString('pt-BR')}</p>
                   </div>
                 </div>
               </div>
