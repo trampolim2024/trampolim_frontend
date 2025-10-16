@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { FiCalendar, FiFileText, FiAward, FiAlertCircle, FiCpu } from "react-icons/fi";
 import { Button } from "@/components/ui/button";
 
@@ -16,7 +17,59 @@ interface EditalDetailsPageProps {
   };
 }
 
+/**
+ * Faz download do PDF do edital
+ * @param editalId - ID do edital
+ * @param editalName - Nome do edital (usado no nome do arquivo)
+ * @param setIsDownloading - Função para atualizar estado de carregamento
+ */
+const downloadEditalPdf = async (
+  editalId: string,
+  editalName: string,
+  setIsDownloading?: (loading: boolean) => void
+) => {
+  setIsDownloading?.(true);
+  try {
+    const response = await fetch(
+      `http://localhost:7070/api/v1/trampolim/editals/${editalId}/download`,
+      {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/pdf',
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Erro ao baixar: ${response.statusText}`);
+    }
+
+    // Converter resposta para blob
+    const blob = await response.blob();
+
+    // Criar URL temporária
+    const url = window.URL.createObjectURL(blob);
+
+    // Criar link e disparar download
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${editalName}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+
+    // Limpar
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  } catch (error) {
+    console.error('Erro ao fazer download do edital:', error);
+    alert('Erro ao fazer download do edital. Tente novamente.');
+  } finally {
+    setIsDownloading?.(false);
+  }
+};
+
 export const EditalDetailsPage = ({ hasActiveEdital, edital }: EditalDetailsPageProps) => {
+  const [isDownloading, setIsDownloading] = useState(false);
   if (!hasActiveEdital || !edital) {
     return (
       <div className="bg-[#F5F5F5] min-h-screen py-12">
@@ -157,8 +210,13 @@ export const EditalDetailsPage = ({ hasActiveEdital, edital }: EditalDetailsPage
                 <Button className="w-full bg-white text-[#3A6ABE] hover:bg-white/90">
                   Submeter Ideia
                 </Button>
-                <Button variant="outline" className="w-full bg-transparent border-white text-white hover:bg-white/10">
-                  Baixar Edital Completo
+                <Button 
+                  variant="outline" 
+                  className="w-full bg-transparent border-white text-white hover:bg-white/10"
+                  onClick={() => downloadEditalPdf(edital._id, edital.name, setIsDownloading)}
+                  disabled={isDownloading}
+                >
+                  {isDownloading ? 'Baixando...' : 'Baixar Edital Completo'}
                 </Button>
                 <Button variant="outline" className="w-full bg-transparent border-white text-white hover:bg-white/10">
                   Tire suas Dúvidas
