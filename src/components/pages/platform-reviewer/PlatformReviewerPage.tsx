@@ -225,7 +225,8 @@ const PlatformReviewerPage = () => {
       <AppHeader
         user={{ 
           name: userData?.fullName || 'Carregando...', 
-          avatar: userData?.photoUrl ? `${API_BASE_URL}${userData.photoUrl}` : '' 
+          avatar: userData?.photoUrl ? `${API_BASE_URL}${userData.photoUrl}` : 'https://randomuser.me/api/portraits/women/1.jpg',
+          role: userData?.type?.includes('reviewer') ? 'Avaliador' : undefined
         }}
         isMenuOpen={isMenuOpen}
         setIsMenuOpen={setIsMenuOpen}

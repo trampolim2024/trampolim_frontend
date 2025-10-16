@@ -164,9 +164,10 @@ const PlatformEntrepreneur = () => {
   return (
     <div className="min-h-screen bg-[#F5F5F5]">
       <AppHeader
-        user={{
-          name: userData?.fullName || 'Carregando...',
-          avatar: userData?.photoUrl ? `${API_BASE_URL}${userData.photoUrl}` : ''
+        user={{ 
+          name: userData?.fullName || 'Carregando...', 
+          avatar: userData?.photoUrl ? `${API_BASE_URL}${userData.photoUrl}` : 'https://randomuser.me/api/portraits/men/1.jpg',
+          role: 'Empreendedor'
         }}
         isMenuOpen={isMenuOpen}
         setIsMenuOpen={setIsMenuOpen}
