@@ -491,6 +491,7 @@ export default function SubmitInnovationPage() {
             hasActiveEdital={!!activeEdital}
             hasSubmitted={hasSubmitted}
             onSubmit={handleSubmit}
+            userProject={userProject}
           />
         </div>
       </div>
