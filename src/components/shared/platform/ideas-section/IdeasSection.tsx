@@ -68,15 +68,16 @@ const getFullImageUrl = (imageUrl: string | undefined): string => {
   return `${API_BASE_URL}${imageUrl}`;
 };
 
-export const IdeasSection = ({
-  editalId, 
-  adminToken, 
-  ideas = [], 
-  reviewers = [],
-  currentPage: externalCurrentPage = 1, 
-  itemsPerPage = 6, 
-  onPageChange 
-}: IdeasSectionProps) => {
+export const IdeasSection = (props: IdeasSectionProps) => {
+  const {
+    editalId,
+    adminToken,
+    ideas = [],
+    reviewers = [],
+    currentPage: externalCurrentPage = 1,
+    itemsPerPage = 6,
+    onPageChange
+  } = props;
   // ==================== ESTADOS ====================
   const [projects, setProjects] = useState<Project[]>(ideas);
   const [reviewersList, setReviewersList] = useState<UserData[]>(reviewers);
