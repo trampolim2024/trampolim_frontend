@@ -139,7 +139,7 @@ export const IdeasSection = ({
     };
 
     fetchProjects();
-  }, [editalId, adminToken, isAdminMode, ideas, reviewers]);
+  }, [editalId, adminToken, isAdminMode]);
 
   // ==================== HANDLERS ====================
   const handleOpenAssignModal = async (idea: Project) => {
@@ -169,12 +169,18 @@ export const IdeasSection = ({
         const data = await response.json();
         console.log('🔵 Response completo de revisores:', data);
         
-        // Tentar múltiplas estruturas de resposta
-        const reviewers = data.users || data || [];
-        const reviewersList = Array.isArray(reviewers) ? reviewers : (Array.isArray(reviewers.users) ? reviewers.users : []);
+        // Tratamento robusto para múltiplas estruturas de resposta
+        let users = [];
+        if (data.users && Array.isArray(data.users)) {
+          users = data.users;
+        } else if (data.data && Array.isArray(data.data)) {
+          users = data.data;
+        } else if (Array.isArray(data)) {
+          users = data;
+        }
         
-        setReviewersList(reviewersList);
-        console.log('✅ Revisores carregados:', reviewersList?.length);
+        setReviewersList(users);
+        console.log('✅ Revisores carregados:', users?.length);
       } catch (err: any) {
         console.error('❌ Erro ao carregar revisores:', err);
         setAssignError('Erro ao carregar revisores');

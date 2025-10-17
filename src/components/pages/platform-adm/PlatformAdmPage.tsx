@@ -126,10 +126,16 @@ const PlatformAdminPage = () => {
       console.log('🔵 Response de usuários:', data);
       
       // Tratamento robusto para múltiplas estruturas
-      const users = data.users || data || [];
-      const usersList = Array.isArray(users) ? users : [];
+      let users = [];
+      if (data.users && Array.isArray(data.users)) {
+        users = data.users;
+      } else if (data.data && Array.isArray(data.data)) {
+        users = data.data;
+      } else if (Array.isArray(data)) {
+        users = data;
+      }
       
-      const reviewerUsers = usersList.filter((user: UserData) => user.type && user.type.includes('reviewer'));
+      const reviewerUsers = users.filter((user: UserData) => user.type && user.type.includes('reviewer'));
       setReviewers(reviewerUsers);
       console.log('✅ Revisores carregados:', reviewerUsers.length);
     } catch (err: any) { 
