@@ -14,6 +14,8 @@ const API_BASE_URL = 'http://localhost:7070';
 interface Edital {
   _id: string;
   name: string;
+  submissionStartDate?: string;
+  submissionEndDate?: string;
 }
 
 interface UserData {
@@ -69,6 +71,44 @@ const PlatformAdminPage = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeEdital, setActiveEdital] = useState<Edital | null>(null);
+  const [adminToken, setAdminToken] = useState<string | null>(null);
+
+  // Inicializar token do admin ao montar
+  useEffect(() => {
+    const token = localStorage.getItem('authToken');
+    setAdminToken(token);
+  }, []);
+
+  const fetchActiveEdital = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/v1/trampolim/editals`);
+      if (!response.ok) throw new Error('Erro ao carregar editais');
+      
+      const data = await response.json();
+      const allEditals: Edital[] = data.editals || [];
+
+      // Encontrar edital vigente
+      const now = new Date();
+      const currentActiveEdital = allEditals.find(edital => {
+        if (!edital.submissionStartDate || !edital.submissionEndDate) return false;
+        const startDate = new Date(edital.submissionStartDate);
+        const endDate = new Date(edital.submissionEndDate);
+        return now >= startDate && now <= endDate;
+      });
+
+      if (currentActiveEdital) {
+        setActiveEdital(currentActiveEdital);
+      }
+    } catch (err: any) {
+      console.error('Erro ao buscar edital vigente:', err);
+    }
+  };
+
+  // Buscar edital vigente ao montar
+  useEffect(() => {
+    fetchActiveEdital();
+  }, []);
 
   const fetchUsers = async () => {
     const token = localStorage.getItem('authToken');
@@ -194,6 +234,17 @@ const PlatformAdminPage = () => {
         return <ReviewersSection reviewers={reviewers} currentPage={currentPage} itemsPerPage={itemsPerPage} onPageChange={handlePageChange} onToggleAdmin={handleToggleAdminStatus} />;
       
       case 'ideias':
+        // Modo Admin: usar editalId e adminToken se disponível
+        if (activeEdital && adminToken) {
+          return (
+            <IdeasSection
+              editalId={activeEdital._id}
+              adminToken={adminToken}
+              itemsPerPage={itemsPerPage}
+            />
+          );
+        }
+        // Fallback para modo compatibilidade
         return (
           <IdeasSection
             ideas={projects} 
