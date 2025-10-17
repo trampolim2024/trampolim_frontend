@@ -50,7 +50,8 @@ export interface UseUserProjectReturn {
   state: SubmissionState;
   project: UserProject | null;
   error: string | null;
-  fetchProjectForEdital: (editalId: string) => Promise<void>;
+  // returns true if project exists (submitted), false if not submitted
+  fetchProjectForEdital: (editalId: string) => Promise<boolean>;
 }
 
 export const useUserProject = (): UseUserProjectReturn => {
@@ -58,7 +59,7 @@ export const useUserProject = (): UseUserProjectReturn => {
   const [project, setProject] = useState<UserProject | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchProjectForEdital = useCallback(async (editalId: string) => {
+  const fetchProjectForEdital = useCallback(async (editalId: string): Promise<boolean> => {
     setState('loading');
     setError(null);
     setProject(null);
@@ -68,7 +69,7 @@ export const useUserProject = (): UseUserProjectReturn => {
     if (!token) {
       setState('error');
       setError('Autenticação necessária. Por favor, faça login novamente.');
-      return;
+      return false;
     }
 
     try {
@@ -85,19 +86,19 @@ export const useUserProject = (): UseUserProjectReturn => {
         localStorage.removeItem('authToken');
         localStorage.removeItem('user');
         // Redirecionar para login pode ser feito no componente
-        return;
+        return false;
       }
 
       if (response.status === 403) {
         setState('error');
         setError('Você não tem acesso a este projeto.');
-        return;
+        return false;
       }
 
       if (response.status === 404) {
         setState('not-submitted');
         setProject(null);
-        return;
+        return false;
       }
 
       if (!response.ok) {
@@ -105,13 +106,15 @@ export const useUserProject = (): UseUserProjectReturn => {
         throw new Error(errorData.message || 'Erro ao buscar seu projeto.');
       }
 
-      const data = await response.json();
-      setProject(data.project);
-      setState('submitted');
+  const data = await response.json();
+  setProject(data.project);
+  setState('submitted');
+  return true;
 
     } catch (err: any) {
       setState('error');
       setError(err.message || 'Erro ao buscar seu projeto. Tente novamente.');
+      return false;
     }
   }, []);
 
