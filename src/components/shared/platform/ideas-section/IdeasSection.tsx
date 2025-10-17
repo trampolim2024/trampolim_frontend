@@ -59,7 +59,16 @@ interface IdeasSectionProps {
 
 const API_BASE_URL = 'http://localhost:7070';
 
-export const IdeasSection = ({ 
+// ==================== FUNÇÃO AUXILIAR ====================
+const getFullImageUrl = (imageUrl: string | undefined): string => {
+  if (!imageUrl) return '';
+  // Se é URL absoluta (começa com http/https), retorna como está
+  if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) return imageUrl;
+  // Se é URL relativa, concatena com base URL
+  return `${API_BASE_URL}${imageUrl}`;
+};
+
+export const IdeasSection = ({
   editalId, 
   adminToken, 
   ideas = [], 
@@ -367,7 +376,7 @@ export const IdeasSection = ({
             <div className="p-5 flex flex-col flex-grow">
               <div className="flex items-start space-x-4 mb-5">
                 <Avatar className="w-12 h-12 border-2 border-[#3A6ABE]/30">
-                  <AvatarImage src={idea.lider.fotoUrl ? `${API_BASE_URL}${idea.lider.fotoUrl}` : ''} alt={idea.lider.nome} />
+                  <AvatarImage src={getFullImageUrl(idea.lider.fotoUrl)} alt={idea.lider.nome} />
                   <AvatarFallback>{idea.lider.nome.charAt(0)}</AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
@@ -535,7 +544,7 @@ export const IdeasSection = ({
                     <div className="flex items-center space-x-3">
                       <Avatar className="h-12 w-12">
                         <AvatarImage
-                          src={reviewer.photoUrl ? `${API_BASE_URL}${reviewer.photoUrl}` : undefined}
+                          src={getFullImageUrl(reviewer.photoUrl)}
                         />
                         <AvatarFallback>{reviewer.fullName.charAt(0)}</AvatarFallback>
                       </Avatar>
