@@ -106,11 +106,10 @@ export const useUserProject = (): UseUserProjectReturn => {
         throw new Error(errorData.message || 'Erro ao buscar seu projeto.');
       }
 
-  const data = await response.json();
-  setProject(data.project);
-  setState('submitted');
-  return true;
-
+      const data = await response.json();
+      setProject(data.project);
+      setState('submitted');
+      return true;
     } catch (err: any) {
       setState('error');
       setError(err.message || 'Erro ao buscar seu projeto. Tente novamente.');
