@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { EditalStatusBanner } from "@/components/shared/innovation/edital-status-banner/EditalStatusBanner";
 import { InnovationForm } from "@/components/shared/innovation/innovation-form/InnovationForm";
-import { FiAlertTriangle } from "react-icons/fi";
+import { ProjectViewer } from "@/components/shared/platform/project-viewer/ProjectViewer";
+import { useUserProject } from '@/hooks/useUserProject';
+import { FiAlertTriangle, FiCheckCircle } from "react-icons/fi";
 
 // --- INTERFACES PARA OS DADOS DA API ---
 interface Edital {
@@ -164,8 +166,10 @@ export default function SubmitInnovationPage() {
   const [activeEdital, setActiveEdital] = useState<Edital | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [hasSubmitted, setHasSubmitted] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
+
+  const { state: projectState, project: userProject, error: projectError, fetchProjectForEdital } = useUserProject();
 
   useEffect(() => {
     const fetchPublicEditals = async () => {
@@ -191,6 +195,11 @@ export default function SubmitInnovationPage() {
         });
         
         setActiveEdital(currentActiveEdital || null);
+
+        // ✅ Se encontrou edital vigente, buscar projeto do usuário para este edital
+        if (currentActiveEdital) {
+          await fetchProjectForEdital(currentActiveEdital._id);
+        }
       } catch (err: any) {
         setError(err.message);
       } finally {
@@ -199,7 +208,7 @@ export default function SubmitInnovationPage() {
     };
 
     fetchPublicEditals();
-  }, []);
+  }, [fetchProjectForEdital]);
 
   const handleSubmit = async (formDataFromForm: FormDataFromForm) => {
     // Reset validation errors
@@ -279,8 +288,15 @@ export default function SubmitInnovationPage() {
 
       setError(null);
       setValidationErrors([]);
-      alert("✅ Projeto submetido com sucesso!");
       setHasSubmitted(true);
+      
+      // ✅ Recarregar projeto do usuário para o edital
+      if (activeEdital) {
+        await fetchProjectForEdital(activeEdital._id);
+      }
+      
+      // Scroll para cima para ver a mensagem de sucesso
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err: any) {
       setError(`❌ Erro na Submissão: ${err.message}`);
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -291,77 +307,158 @@ export default function SubmitInnovationPage() {
     return <div className="text-center py-20 text-xl text-gray-600">Verificando editais abertos...</div>;
   }
   
-  if (error && !validationErrors.length) {
+  if (error && !validationErrors.length && projectState !== 'submitted' && projectState !== 'not-submitted') {
     return <div className="text-center py-20 text-xl text-red-500 bg-red-50 p-8 rounded-lg max-w-4xl mx-auto">{error}</div>;
   }
 
-  return (
-    <div className="bg-[#F5F5F5] min-h-screen py-12">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* --- BANNER DE ERROS DE VALIDAÇÃO --- */}
-        {validationErrors.length > 0 && (
-          <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-8 rounded-r-lg">
-            <div className="flex items-start">
-              <FiAlertTriangle className="text-red-500 mt-1 mr-3 flex-shrink-0 text-lg" />
-              <div>
-                <h3 className="text-red-800 font-bold mb-2">Erros no Formulário:</h3>
-                <ul className="text-red-700 list-disc list-inside space-y-1">
-                  {validationErrors.map((err, idx) => (
-                    <li key={idx}>{err}</li>
-                  ))}
-                </ul>
+  // Estado: Nenhum edital ativo
+  if (!activeEdital && !isLoading) {
+    return (
+      <div className="bg-[#F5F5F5] min-h-screen py-12">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center py-20">
+            <h1 className="text-3xl font-bold text-[#3A6ABE] mb-4">Nenhum Edital Ativo</h1>
+            <p className="text-lg text-[#3A6ABE]/80">Nenhum edital ativo no momento. Volte mais tarde para submeter sua ideia!</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Estado: Projeto já submetido
+  if (projectState === 'submitted' && userProject) {
+    return (
+      <div className="bg-[#F5F5F5] min-h-screen py-12">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Banner de sucesso */}
+          <div className="bg-green-50 border-l-4 border-green-500 p-4 mb-8 rounded-r-lg flex items-start">
+            <FiCheckCircle className="text-green-500 mt-1 mr-3 flex-shrink-0 text-xl" />
+            <div>
+              <h3 className="text-green-800 font-bold mb-1">Projeto Submetido!</h3>
+              <p className="text-green-700">Seu projeto foi submetido com sucesso. Confira os dados abaixo.</p>
+            </div>
+          </div>
+
+          <div className="text-center mb-10">
+            <h1 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#3A6ABE] to-[#F79B4B]">
+              Sua Ideia Inovadora
+            </h1>
+          </div>
+
+          <EditalStatusBanner 
+            hasActiveEdital={!!activeEdital} 
+            editalInfo={activeEdital ? {
+              name: activeEdital.name,
+              deadline: new Date(activeEdital.submissionEndDate).toLocaleDateString('pt-BR', { 
+                day: '2-digit', 
+                month: 'long', 
+                year: 'numeric'
+              }),
+              description: `Submissões abertas de ${new Date(activeEdital.submissionStartDate).toLocaleDateString('pt-BR')} até ${new Date(activeEdital.submissionEndDate).toLocaleDateString('pt-BR')}`
+            } : undefined} 
+          />
+
+          <ProjectViewer project={userProject} />
+        </div>
+      </div>
+    );
+  }
+
+  // Estado: Carregando projeto
+  if (projectState === 'loading') {
+    return <div className="text-center py-20 text-xl text-gray-600">Verificando seu status de submissão...</div>;
+  }
+
+  // Estado: Erro ao carregar projeto
+  if (projectState === 'error' && projectError) {
+    return (
+      <div className="bg-[#F5F5F5] min-h-screen py-12">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-8 rounded-r-lg flex items-start">
+            <FiAlertTriangle className="text-red-500 mt-1 mr-3 flex-shrink-0 text-lg" />
+            <div>
+              <h3 className="text-red-800 font-bold mb-1">Erro</h3>
+              <p className="text-red-700">{projectError}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Estado: Não submetido / Pode submeter
+  if (projectState === 'not-submitted') {
+    return (
+      <div className="bg-[#F5F5F5] min-h-screen py-12">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* --- BANNER DE ERROS DE VALIDAÇÃO --- */}
+          {validationErrors.length > 0 && (
+            <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-8 rounded-r-lg">
+              <div className="flex items-start">
+                <FiAlertTriangle className="text-red-500 mt-1 mr-3 flex-shrink-0 text-lg" />
+                <div>
+                  <h3 className="text-red-800 font-bold mb-2">Erros no Formulário:</h3>
+                  <ul className="text-red-700 list-disc list-inside space-y-1">
+                    {validationErrors.map((err, idx) => (
+                      <li key={idx}>{err}</li>
+                    ))}
+                  </ul>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* --- BANNER DO ERRO GERAL --- */}
-        {error && validationErrors.length === 0 && (
-          <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-8 rounded-r-lg">
-            <div className="flex items-start">
-              <FiAlertTriangle className="text-red-500 mt-1 mr-3 flex-shrink-0" />
-              <p className="text-red-700">{error}</p>
+          {/* --- BANNER DO ERRO GERAL --- */}
+          {error && validationErrors.length === 0 && (
+            <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-8 rounded-r-lg">
+              <div className="flex items-start">
+                <FiAlertTriangle className="text-red-500 mt-1 mr-3 flex-shrink-0" />
+                <p className="text-red-700">{error}</p>
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        <div className="text-center mb-10">
-          <h1 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#3A6ABE] to-[#F79B4B]">
-            Submeta sua Ideia Inovadora
-          </h1>
-          <p className="text-xl text-[#3A6ABE]/90 max-w-3xl mx-auto mt-4">
-            Transforme sua ideia em realidade com o apoio do nosso programa de inovação
-          </p>
-        </div>
-        
-        <EditalStatusBanner 
-          hasActiveEdital={!!activeEdital} 
-          editalInfo={activeEdital ? {
-            name: activeEdital.name,
-            deadline: new Date(activeEdital.submissionEndDate).toLocaleDateString('pt-BR', { 
-              day: '2-digit', 
-              month: 'long', 
-              year: 'numeric'
-            }),
-            description: `Submissões abertas de ${new Date(activeEdital.submissionStartDate).toLocaleDateString('pt-BR')} até ${new Date(activeEdital.submissionEndDate).toLocaleDateString('pt-BR')}`
-          } : undefined} 
-        />
-        
-        {!!activeEdital && !hasSubmitted && (
-          <div className="bg-[#F79B4B]/10 border-l-4 border-[#F79B4B] p-4 my-8 rounded-r-lg flex items-start">
-            <FiAlertTriangle className="text-[#F79B4B] mt-1 mr-3 flex-shrink-0" />
-            <p className="text-[#3A6ABE]/90">
-              <strong>Atenção:</strong> Cada participante pode submeter apenas uma ideia por edital. <strong>Todos os campos marcados com * são obrigatórios.</strong>
+          <div className="text-center mb-10">
+            <h1 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#3A6ABE] to-[#F79B4B]">
+              Submeta sua Ideia Inovadora
+            </h1>
+            <p className="text-xl text-[#3A6ABE]/90 max-w-3xl mx-auto mt-4">
+              Transforme sua ideia em realidade com o apoio do nosso programa de inovação
             </p>
           </div>
-        )}
-        
-        <InnovationForm 
-          hasActiveEdital={!!activeEdital}
-          hasSubmitted={hasSubmitted}
-          onSubmit={handleSubmit}
-        />
+          
+          <EditalStatusBanner 
+            hasActiveEdital={!!activeEdital} 
+            editalInfo={activeEdital ? {
+              name: activeEdital.name,
+              deadline: new Date(activeEdital.submissionEndDate).toLocaleDateString('pt-BR', { 
+                day: '2-digit', 
+                month: 'long', 
+                year: 'numeric'
+              }),
+              description: `Submissões abertas de ${new Date(activeEdital.submissionStartDate).toLocaleDateString('pt-BR')} até ${new Date(activeEdital.submissionEndDate).toLocaleDateString('pt-BR')}`
+            } : undefined} 
+          />
+          
+          {!!activeEdital && !hasSubmitted && (
+            <div className="bg-[#F79B4B]/10 border-l-4 border-[#F79B4B] p-4 my-8 rounded-r-lg flex items-start">
+              <FiAlertTriangle className="text-[#F79B4B] mt-1 mr-3 flex-shrink-0" />
+              <p className="text-[#3A6ABE]/90">
+                <strong>Atenção:</strong> Cada participante pode submeter apenas uma ideia por edital. <strong>Todos os campos marcados com * são obrigatórios.</strong>
+              </p>
+            </div>
+          )}
+          
+          <InnovationForm 
+            hasActiveEdital={!!activeEdital}
+            hasSubmitted={hasSubmitted}
+            onSubmit={handleSubmit}
+          />
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
+
+  // Fallback (não deve chegar aqui)
+  return null;
 }
