@@ -2,12 +2,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useState } from "react";
-import { FiPlus, FiX } from "react-icons/fi";
+import { FiPlus } from "react-icons/fi";
 import { MemberInput } from "../members-input/MemberInput";
-import { ProjectViewer } from "@/components/shared/platform/project-viewer/ProjectViewer";
-import type { UserProject } from "@/hooks/useUserProject";
 
 interface MemberState {
   nome: string;
@@ -18,12 +15,10 @@ interface MemberState {
 
 interface InnovationFormProps {
   hasActiveEdital: boolean;
-  hasSubmitted: boolean;
   onSubmit: (data: any) => Promise<void>;
-  userProject?: UserProject | null;
 }
 
-export const InnovationForm = ({ hasActiveEdital, hasSubmitted, onSubmit, userProject }: InnovationFormProps) => {
+export const InnovationForm = ({ hasActiveEdital, onSubmit }: InnovationFormProps) => {
   const [formData, setFormData] = useState({
     nomeProjeto: '',
     estagioIdeia: '',
@@ -37,7 +32,6 @@ export const InnovationForm = ({ hasActiveEdital, hasSubmitted, onSubmit, userPr
   });
 
   const [isLoading, setIsLoading] = useState(false);
-  const [showProjectModal, setShowProjectModal] = useState(false);
 
   const handleChange = (field: string, value: string | File | null) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -101,45 +95,6 @@ export const InnovationForm = ({ hasActiveEdital, hasSubmitted, onSubmit, userPr
     await onSubmit(submissionData);
     setIsLoading(false);
   };
-
-  if (hasSubmitted) {
-    return (
-      <>
-        <div className="bg-white rounded-xl border border-[#3A6ABE]/20 p-8 text-center">
-          <div className="mx-auto w-24 h-24 bg-[#3A6ABE]/10 rounded-full flex items-center justify-center mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#3A6ABE" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-          </div>
-          <h3 className="text-xl font-medium text-[#3A6ABE] mb-2">Submissão realizada com sucesso!</h3>
-          <p className="text-[#3A6ABE]/80 mb-6">Sua ideia foi submetida. Você será notificado sobre o andamento do processo.</p>
-          <Dialog open={showProjectModal} onOpenChange={setShowProjectModal}>
-            <DialogTrigger asChild>
-              <Button className="bg-[#3A6ABE] hover:bg-[#3A6ABE]/90">Ver minha submissão</Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader className="flex flex-row items-center justify-between">
-                <DialogTitle>Sua Submissão</DialogTitle>
-                <button
-                  onClick={() => setShowProjectModal(false)}
-                  className="rounded-md text-[#3A6ABE] hover:bg-[#3A6ABE]/10 p-1"
-                >
-                  <FiX className="w-5 h-5" />
-                </button>
-              </DialogHeader>
-              {userProject ? (
-                <div className="mt-4">
-                  <ProjectViewer project={userProject} />
-                </div>
-              ) : (
-                <div className="text-center py-8 text-[#3A6ABE]/60">
-                  Carregando dados do projeto...
-                </div>
-              )}
-            </DialogContent>
-          </Dialog>
-        </div>
-      </>
-    );
-  }
 
   if (!hasActiveEdital) {
     return (
