@@ -167,8 +167,14 @@ export const IdeasSection = ({
         if (!response.ok) throw new Error(`Erro ${response.status}`);
 
         const data = await response.json();
-        setReviewersList(data.users || []);
-        console.log('✅ Revisores carregados:', data.users?.length);
+        console.log('🔵 Response completo de revisores:', data);
+        
+        // Tentar múltiplas estruturas de resposta
+        const reviewers = data.users || data || [];
+        const reviewersList = Array.isArray(reviewers) ? reviewers : (Array.isArray(reviewers.users) ? reviewers.users : []);
+        
+        setReviewersList(reviewersList);
+        console.log('✅ Revisores carregados:', reviewersList?.length);
       } catch (err: any) {
         console.error('❌ Erro ao carregar revisores:', err);
         setAssignError('Erro ao carregar revisores');
@@ -307,7 +313,7 @@ export const IdeasSection = ({
   };
 
   // ==================== LÓGICA DE FILTRO ====================
-  const filteredReviewers = reviewersList.filter(reviewer => {
+  const filteredReviewers = (Array.isArray(reviewersList) ? reviewersList : []).filter(reviewer => {
     if (!searchReviewerQuery) return true;
 
     const query = searchReviewerQuery.toLowerCase();
