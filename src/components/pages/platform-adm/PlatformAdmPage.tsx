@@ -123,8 +123,17 @@ const PlatformAdminPage = () => {
         throw new Error(errorData.message || 'Falha ao carregar usuários.'); 
       }
       const data = await response.json();
-      setReviewers(data.users.filter((user: UserData) => user.type.includes('reviewer')));
+      console.log('🔵 Response de usuários:', data);
+      
+      // Tratamento robusto para múltiplas estruturas
+      const users = data.users || data || [];
+      const usersList = Array.isArray(users) ? users : [];
+      
+      const reviewerUsers = usersList.filter((user: UserData) => user.type && user.type.includes('reviewer'));
+      setReviewers(reviewerUsers);
+      console.log('✅ Revisores carregados:', reviewerUsers.length);
     } catch (err: any) { 
+      console.error('❌ Erro ao carregar usuários:', err);
       setError(err.message); 
     }
   };
@@ -146,8 +155,16 @@ const PlatformAdminPage = () => {
         throw new Error(errorData.message || "Falha ao carregar os projetos.");
       }
       const data = await response.json();
-      setProjects(data.projects || []);
+      console.log('🔵 Response de projetos:', data);
+      
+      // Tratamento robusto para múltiplas estruturas
+      const projects = data.projects || data || [];
+      const projectsList = Array.isArray(projects) ? projects : [];
+      
+      setProjects(projectsList);
+      console.log('✅ Projetos carregados:', projectsList.length);
     } catch (err: any) {
+      console.error('❌ Erro ao carregar projetos:', err);
       setError(err.message);
     }
   };
