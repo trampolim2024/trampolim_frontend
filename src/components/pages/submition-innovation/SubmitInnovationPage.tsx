@@ -167,7 +167,6 @@ export default function SubmitInnovationPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
-  const [hasSubmitted, setHasSubmitted] = useState(false);
 
   const { state: projectState, project: userProject, error: projectError, fetchProjectForEdital } = useUserProject();
 
@@ -198,18 +197,7 @@ export default function SubmitInnovationPage() {
 
         // ✅ Se encontrou edital vigente, buscar projeto do usuário para este edital
         if (currentActiveEdital) {
-          // If the user submitted just now (flag in localStorage), keep hasSubmitted true
-          const pendingKey = `submissionSent:${currentActiveEdital._id}`;
-          const pending = !!localStorage.getItem(pendingKey);
-          if (pending) setHasSubmitted(true);
-
           await fetchProjectForEdital(currentActiveEdital._id);
-
-          // If project was found, clear pending flag
-          if (localStorage.getItem(pendingKey) && typeof (window) !== 'undefined') {
-            // if hook resolved to submitted, it will update UI; remove pending flag
-            localStorage.removeItem(pendingKey);
-          }
         }
       } catch (err: any) {
         setError(err.message);
@@ -305,7 +293,6 @@ export default function SubmitInnovationPage() {
       // POST succeeded (201). The backend may process asynchronously; retry GET /projects/my/:editalId a few times
       setError(null);
       setValidationErrors([]);
-      setHasSubmitted(true);
 
       if (activeEdital) {
         const maxAttempts = 5;
@@ -478,7 +465,7 @@ export default function SubmitInnovationPage() {
             } : undefined} 
           />
           
-          {!!activeEdital && !hasSubmitted && (
+          {!!activeEdital && projectState === 'not-submitted' && (
             <div className="bg-[#F79B4B]/10 border-l-4 border-[#F79B4B] p-4 my-8 rounded-r-lg flex items-start">
               <FiAlertTriangle className="text-[#F79B4B] mt-1 mr-3 flex-shrink-0" />
               <p className="text-[#3A6ABE]/90">
@@ -489,9 +476,7 @@ export default function SubmitInnovationPage() {
           
           <InnovationForm 
             hasActiveEdital={!!activeEdital}
-            hasSubmitted={hasSubmitted}
             onSubmit={handleSubmit}
-            userProject={userProject}
           />
         </div>
       </div>
