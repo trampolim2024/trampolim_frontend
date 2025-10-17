@@ -198,7 +198,18 @@ export default function SubmitInnovationPage() {
 
         // ✅ Se encontrou edital vigente, buscar projeto do usuário para este edital
         if (currentActiveEdital) {
+          // If the user submitted just now (flag in localStorage), keep hasSubmitted true
+          const pendingKey = `submissionSent:${currentActiveEdital._id}`;
+          const pending = !!localStorage.getItem(pendingKey);
+          if (pending) setHasSubmitted(true);
+
           await fetchProjectForEdital(currentActiveEdital._id);
+
+          // If project was found, clear pending flag
+          if (localStorage.getItem(pendingKey) && typeof (window) !== 'undefined') {
+            // if hook resolved to submitted, it will update UI; remove pending flag
+            localStorage.removeItem(pendingKey);
+          }
         }
       } catch (err: any) {
         setError(err.message);
@@ -273,32 +284,59 @@ export default function SubmitInnovationPage() {
     }
 
     try {
+      // mark pending submission so UI doesn't immediately show form on reload
+      const pendingKey = `submissionSent:${activeEdital._id}`;
+      localStorage.setItem(pendingKey, '1');
+
       const response = await fetch(`${API_BASE_URL}/api/v1/trampolim/projects`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
         body: formData,
       });
-
       const result = await response.json();
 
       if (!response.ok) {
-        // ✅ Erros do backend aparecem aqui
-        throw new Error(result.message || "Ocorreu um erro ao submeter o projeto.");
+        // remove pending flag on failure
+        localStorage.removeItem(pendingKey);
+        // If backend returned a specific error, show it
+        throw new Error(result?.message || `Ocorreu um erro ao submeter o projeto. Status ${response.status}`);
       }
 
+      // POST succeeded (201). The backend may process asynchronously; retry GET /projects/my/:editalId a few times
       setError(null);
       setValidationErrors([]);
       setHasSubmitted(true);
-      
-      // ✅ Recarregar projeto do usuário para o edital
+
       if (activeEdital) {
-        await fetchProjectForEdital(activeEdital._id);
+        const maxAttempts = 5;
+        let attempt = 0;
+        let found = false;
+        while (attempt < maxAttempts && !found) {
+          const exists = await fetchProjectForEdital(activeEdital._id);
+          if (exists) {
+            found = true;
+            break;
+          }
+          attempt++;
+          // wait before retrying
+          await new Promise(res => setTimeout(res, 800));
+        }
+
+        // clear pending key if we couldn't find project after retries - still consider success but warn user
+        if (!found) {
+          // keep pending key so on reload we try fetch again; show notice
+          setError('Projeto submetido, mas a confirmação ainda está sendo processada pelo servidor. Se não aparecer em alguns segundos, atualize a página.');
+        } else {
+          localStorage.removeItem(pendingKey);
+        }
       }
-      
-      // Scroll para cima para ver a mensagem de sucesso
+
+      // Scroll para cima para ver a mensagem de sucesso / aviso
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err: any) {
       setError(`❌ Erro na Submissão: ${err.message}`);
+      // ensure pending flag is removed if there was an error
+      if (activeEdital) localStorage.removeItem(`submissionSent:${activeEdital._id}`);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
